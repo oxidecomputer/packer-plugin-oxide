@@ -1,15 +1,19 @@
 packer {
   required_plugins {
     oxide = {
-      version = ">=v0.0.1"
+      version = ">= 0.0.1"
       source  = "github.com/oxidecomputer/oxide"
     }
   }
 }
 
+data "oxide-image" "ubuntu" {
+  name    = "noble"
+}
+
 source "oxide-instance" "example" {
   project     = "matthewsanabria"
-  image_id    = "feb2c8ee-5a1d-4d66-beeb-289b860561bf"
+  image_id    = data.oxide-image.ubuntu.image_id
 
   ssh_username   = "ubuntu"
   ssh_agent_auth = true

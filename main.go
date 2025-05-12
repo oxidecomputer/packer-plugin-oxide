@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/packer-plugin-sdk/plugin"
 	"github.com/hashicorp/packer-plugin-sdk/version"
 	"github.com/oxidecomputer/packer-plugin-oxide/component/builder/instance"
+	"github.com/oxidecomputer/packer-plugin-oxide/component/data-source/image"
 )
 
 var (
@@ -30,6 +31,7 @@ var (
 func main() {
 	pluginSet := plugin.NewSet()
 	pluginSet.RegisterBuilder("instance", new(instance.Builder))
+	pluginSet.RegisterDatasource("image", new(image.DataSource))
 	pluginSet.SetVersion(
 		version.NewPluginVersion(Version, VersionPreRelease, VersionMetadata),
 	)

@@ -30,6 +30,7 @@ func (o *stepInstanceCreate) Run(ctx context.Context, stateBag multistep.StateBa
 	instance, err := oxideClient.InstanceCreate(ctx, oxide.InstanceCreateParams{
 		Project: oxide.NameOrId(config.Project),
 		Body: &oxide.InstanceCreate{
+			AntiAffinityGroups: []oxide.NameOrId{},
 			BootDisk: &oxide.InstanceDiskAttachment{
 				Description: "Created by Packer.",
 				DiskSource: oxide.DiskSource{
