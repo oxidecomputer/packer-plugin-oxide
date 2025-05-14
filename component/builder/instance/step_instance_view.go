@@ -24,7 +24,7 @@ func (s *stepInstanceView) Run(ctx context.Context, stateBag multistep.StateBag)
 
 	ui.Say("Viewing Oxide instance!")
 
-	results, err :=oxideClient.InstanceExternalIpList(ctx, oxide.InstanceExternalIpListParams{
+	results, err := oxideClient.InstanceExternalIpList(ctx, oxide.InstanceExternalIpListParams{
 		Instance: oxide.NameOrId(instanceID),
 	})
 	if err != nil {

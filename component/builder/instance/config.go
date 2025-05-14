@@ -25,8 +25,8 @@ type Config struct {
 	Host  string `mapstructure:"host"`
 	Token string `mapstructure:"token"`
 
-	Project    string `mapstructure:"project"`
-	ImageID    string `mapstructure:"image_id"`
+	Project string `mapstructure:"project"`
+	ImageID string `mapstructure:"image_id"`
 
 	ctx interpolate.Context
 }

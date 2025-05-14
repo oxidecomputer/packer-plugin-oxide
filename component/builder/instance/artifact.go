@@ -31,4 +31,3 @@ func (a *Artifact) State(name string) any {
 func (a *Artifact) Destroy() error {
 	return nil
 }
-
