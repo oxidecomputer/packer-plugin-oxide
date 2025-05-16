@@ -1,0 +1,18 @@
+data "oxide-image" "test" {
+  name    = "{{ .Name }}"
+  {{- if not .SiloImage }}
+  project = "{{ .Project }}"
+  {{- end }}
+}
+
+locals {
+  image_id = data.oxide-image.test.image_id
+}
+
+source "null" "test" {
+  communicator = "none"
+}
+
+build {
+  sources = ["sources.null.test"]
+}

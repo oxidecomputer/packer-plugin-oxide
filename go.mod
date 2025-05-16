@@ -76,6 +76,7 @@ require (
 	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/pkg/sftp v1.13.2 // indirect
 	github.com/ryanuber/go-glob v1.0.0 // indirect
+	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/ugorji/go/codec v1.2.6 // indirect
 	github.com/ulikunitz/xz v0.5.10 // indirect
 	github.com/vmihailenco/msgpack/v5 v5.3.5 // indirect
