@@ -4,30 +4,43 @@
 
 package instance
 
+import "github.com/hashicorp/packer-plugin-sdk/packer"
+
+var _ packer.Artifact = (*Artifact)(nil)
+
+// Artifact is the result of this builder.
 type Artifact struct {
+	ImageID   string
+	ImageName string
 	StateData map[string]any
 }
 
+// BuilderId returns the builder ID used to create this artifact.
 func (*Artifact) BuilderId() string {
-	return "oxide.builder"
+	return "oxide.instance"
 }
 
+// Files returns the files associated with the artifact.
 func (a *Artifact) Files() []string {
-	return []string{}
+	return nil
 }
 
-func (*Artifact) Id() string {
-	return ""
+// Id returns the unique identifier for this artifact.
+func (a *Artifact) Id() string {
+	return a.ImageID
 }
 
+// String returns a description to describe the artifact.
 func (a *Artifact) String() string {
-	return ""
+	return a.ImageName
 }
 
+// State returns builder state related to the artifact.
 func (a *Artifact) State(name string) any {
 	return a.StateData[name]
 }
 
+// Destroy deletes the artifact when it is determined to no longer be needed.
 func (a *Artifact) Destroy() error {
 	return nil
 }
