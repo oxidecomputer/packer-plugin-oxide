@@ -2,7 +2,6 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-//go:generate packer-sdc mapstructure-to-hcl2 -type Config,Output
 //go:generate packer-sdc struct-markdown
 
 package image
@@ -21,31 +20,6 @@ import (
 	"github.com/zclconf/go-cty/cty"
 )
 
-// Config represents the Packer configuration for this plugin component.
-type Config struct {
-	// Oxide API URL (e.g., silo.sys.example.com).
-	Host string `mapstructure:"host"`
-
-	// Oxide API token.
-	Token string `mapstructure:"token"`
-
-	// Name of the image to fetch.
-	Name string `mapstructure:"name"`
-
-	// Name or ID of the project containing the image to fetch. Leave blank to fetch
-	// a silo image instead of a project image.
-	Project string `mapstructure:"project"`
-}
-
-// Output represents the information returned by this plugin component for use
-// in other Packer plugin components.
-type Output struct {
-	// ID of the image that was fetched.
-	ImageID string `mapstructure:"image_id"`
-}
-
-// Compile-time assertion to ensure the DataSource type implements the Packer
-// data source component interface.
 var _ packer.Datasource = (*DataSource)(nil)
 
 // DataSource is the concrete type that implements the Packer data source
@@ -68,30 +42,36 @@ func (d *DataSource) Configure(args ...any) error {
 		return fmt.Errorf("failed decoding configuration: %w", err)
 	}
 
-	var multiErr *packer.MultiError
+	// Set defaults.
+	{
+		if d.config.Host == "" {
+			d.config.Host = os.Getenv("OXIDE_HOST")
+		}
 
-	if d.config.Host == "" {
-		d.config.Host = os.Getenv("OXIDE_HOST")
+		if d.config.Token == "" {
+			d.config.Token = os.Getenv("OXIDE_TOKEN")
+		}
 	}
 
-	if d.config.Token == "" {
-		d.config.Token = os.Getenv("OXIDE_TOKEN")
-	}
+	// Enforce required configuration.
+	{
+		var multiErr *packer.MultiError
 
-	if d.config.Host == "" {
-		multiErr = packer.MultiErrorAppend(multiErr, errors.New("host is required"))
-	}
+		if d.config.Host == "" {
+			multiErr = packer.MultiErrorAppend(multiErr, errors.New("host is required"))
+		}
 
-	if d.config.Token == "" {
-		multiErr = packer.MultiErrorAppend(multiErr, errors.New("token is required"))
-	}
+		if d.config.Token == "" {
+			multiErr = packer.MultiErrorAppend(multiErr, errors.New("token is required"))
+		}
 
-	if d.config.Name == "" {
-		multiErr = packer.MultiErrorAppend(multiErr, errors.New("name is required"))
-	}
+		if d.config.Name == "" {
+			multiErr = packer.MultiErrorAppend(multiErr, errors.New("name is required"))
+		}
 
-	if multiErr != nil && len(multiErr.Errors) > 0 {
-		return multiErr
+		if multiErr != nil && len(multiErr.Errors) > 0 {
+			return multiErr
+		}
 	}
 
 	return nil

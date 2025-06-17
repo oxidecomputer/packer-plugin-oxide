@@ -35,26 +35,3 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 	}
 	return s
 }
-
-// FlatOutput is an auto-generated flat version of Output.
-// Where the contents of a field with a `mapstructure:,squash` tag are bubbled up.
-type FlatOutput struct {
-	ImageID *string `mapstructure:"image_id" cty:"image_id" hcl:"image_id"`
-}
-
-// FlatMapstructure returns a new FlatOutput.
-// FlatOutput is an auto-generated flat version of Output.
-// Where the contents a fields with a `mapstructure:,squash` tag are bubbled up.
-func (*Output) FlatMapstructure() interface{ HCL2Spec() map[string]hcldec.Spec } {
-	return new(FlatOutput)
-}
-
-// HCL2Spec returns the hcl spec of a Output.
-// This spec is used by HCL to read the fields of Output.
-// The decoded values from this spec will then be applied to a FlatOutput.
-func (*FlatOutput) HCL2Spec() map[string]hcldec.Spec {
-	s := map[string]hcldec.Spec{
-		"image_id": &hcldec.AttrSpec{Name: "image_id", Type: cty.String, Required: false},
-	}
-	return s
-}

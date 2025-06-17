@@ -19,7 +19,7 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
-// Config is the builder configuration.
+// Config represents the Packer configuration for this builder component.
 type Config struct {
 	common.PackerConfig `mapstructure:",squash"`
 
@@ -36,7 +36,7 @@ type Config struct {
 	// Image ID to boot the instance from.
 	BootDiskImageID string `mapstructure:"boot_disk_image_id"`
 
-	// Project where the instance will be created.
+	// Name or ID of the project where the instance will be created.
 	Project string `mapstructure:"project"`
 
 	// Size of the boot disk, in bytes.
