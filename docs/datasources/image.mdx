@@ -1,0 +1,48 @@
+---
+description: >
+  Fetches the image ID for an Oxide image using its name. The image can be a
+  project image or silo image.
+page_title: Oxide Image - Data Source
+nav_title: oxide-image
+---
+
+# Oxide Image - Data Source
+
+Type: `oxide-image`
+
+@include 'component/data-source/image/Datasource.mdx'
+
+## Configuration
+
+@include 'component/data-source/image/Config.mdx'
+
+### Required
+
+@include 'component/data-source/image/Config-required.mdx'
+
+### Optional
+
+@include 'component/data-source/image/Config-not-required.mdx'
+
+## Outputs
+
+@include 'component/data-source/image/DatasourceOutput.mdx'
+
+## Examples
+
+Fetch a project image.
+
+```hcl
+data "oxide-image" "example" {
+  name    = "ubuntu"
+  project = "oxide"
+}
+```
+
+Fetch a silo image.
+
+```hcl
+data "oxide-image" "example" {
+  name = "ubuntu"
+}
+```

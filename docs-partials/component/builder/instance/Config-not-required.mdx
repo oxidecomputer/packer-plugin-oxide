@@ -1,0 +1,25 @@
+<!-- Code generated from the comments of the Config struct in component/builder/instance/config.go; DO NOT EDIT MANUALLY -->
+
+- `boot_disk_size` (uint64) - Size of the boot disk in bytes. Defaults to `21474836480`, or 20 GiB.
+
+- `ip_pool` (string) - IP pool to allocate the instance's external IP from. If not specified, the
+  silo's default IP pool will be used.
+
+- `vpc` (string) - VPC to create the instance within. Defaults to `default`.
+
+- `subnet` (string) - Subnet to create the instance within. Defaults to `default`.
+
+- `name` (string) - Name of the temporary instance. Defaults to `packer-{{timestamp}}`.
+
+- `hostname` (string) - Hostname of the temporary instance. Defaults to `packer-{{timestamp}}`.
+
+- `cpus` (uint64) - Number of vCPUs to provision the instance with. Defaults to `1`.
+
+- `memory` (uint64) - Amount of memory to provision the instance with, in bytes. Defaults to
+  `2147483648`, or 2 GiB.
+
+- `ssh_public_keys` ([]string) - An array of names or IDs of SSH public keys to inject into the instance.
+
+- `artifact_name` (string) - Name of the resulting image artifact. Defaults to `packer-{{timestamp}}`.
+
+<!-- End of code generated from the comments of the Config struct in component/builder/instance/config.go; -->

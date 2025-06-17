@@ -7,23 +7,23 @@ import (
 	"github.com/zclconf/go-cty/cty"
 )
 
-// FlatOutput is an auto-generated flat version of Output.
+// FlatDatasourceOutput is an auto-generated flat version of DatasourceOutput.
 // Where the contents of a field with a `mapstructure:,squash` tag are bubbled up.
-type FlatOutput struct {
+type FlatDatasourceOutput struct {
 	ImageID *string `mapstructure:"image_id" cty:"image_id" hcl:"image_id"`
 }
 
-// FlatMapstructure returns a new FlatOutput.
-// FlatOutput is an auto-generated flat version of Output.
+// FlatMapstructure returns a new FlatDatasourceOutput.
+// FlatDatasourceOutput is an auto-generated flat version of DatasourceOutput.
 // Where the contents a fields with a `mapstructure:,squash` tag are bubbled up.
-func (*Output) FlatMapstructure() interface{ HCL2Spec() map[string]hcldec.Spec } {
-	return new(FlatOutput)
+func (*DatasourceOutput) FlatMapstructure() interface{ HCL2Spec() map[string]hcldec.Spec } {
+	return new(FlatDatasourceOutput)
 }
 
-// HCL2Spec returns the hcl spec of a Output.
-// This spec is used by HCL to read the fields of Output.
-// The decoded values from this spec will then be applied to a FlatOutput.
-func (*FlatOutput) HCL2Spec() map[string]hcldec.Spec {
+// HCL2Spec returns the hcl spec of a DatasourceOutput.
+// This spec is used by HCL to read the fields of DatasourceOutput.
+// The decoded values from this spec will then be applied to a FlatDatasourceOutput.
+func (*FlatDatasourceOutput) HCL2Spec() map[string]hcldec.Spec {
 	s := map[string]hcldec.Spec{
 		"image_id": &hcldec.AttrSpec{Name: "image_id", Type: cty.String, Required: false},
 	}

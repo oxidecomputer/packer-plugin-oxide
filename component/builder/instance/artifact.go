@@ -8,10 +8,14 @@ import "github.com/hashicorp/packer-plugin-sdk/packer"
 
 var _ packer.Artifact = (*Artifact)(nil)
 
-// Artifact is the result of this builder.
+// Artifact represents the Oxide image created by the builder. This artifact
+// contains the image ID and name that can be used to launch new instances.
 type Artifact struct {
-	ImageID   string
+	// Unique identifier of the created image.
+	ImageID string
+	// Name of the created image.
 	ImageName string
+	// Additional state data associated with the build.
 	StateData map[string]any
 }
 
@@ -30,7 +34,7 @@ func (a *Artifact) Id() string {
 	return a.ImageID
 }
 
-// String returns a description to describe the artifact.
+// String returns a description of the artifact.
 func (a *Artifact) String() string {
 	return a.ImageName
 }

@@ -31,7 +31,7 @@ var (
 func main() {
 	pluginSet := plugin.NewSet()
 	pluginSet.RegisterBuilder("instance", new(instance.Builder))
-	pluginSet.RegisterDatasource("image", new(image.DataSource))
+	pluginSet.RegisterDatasource("image", new(image.Datasource))
 	pluginSet.SetVersion(
 		version.NewPluginVersion(Version, VersionPreRelease, VersionMetadata),
 	)
