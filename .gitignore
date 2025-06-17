@@ -1,0 +1,11 @@
+# Build artifacts.
+main
+packer-plugin-oxide
+
+# Logs.
+crash.log
+
+# Documentation.
+dist/*
+.docs/*
+docs.zip
