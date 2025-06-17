@@ -6,6 +6,7 @@ package instance
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/hashicorp/hcl/v2/hcldec"
 	"github.com/hashicorp/packer-plugin-sdk/communicator"
@@ -17,15 +18,18 @@ import (
 
 var _ packer.Builder = (*Builder)(nil)
 
+// Builder is an implementation of [packer.Builder] for use with Oxide.
 type Builder struct {
 	config Config
 	runner multistep.Runner
 }
 
+// ConfigSpec returns the HCL configuration specification for the builder.
 func (b *Builder) ConfigSpec() hcldec.ObjectSpec {
 	return b.config.FlatMapstructure().HCL2Spec()
 }
 
+// Prepare configures the builder and validates its configuration.
 func (b *Builder) Prepare(args ...any) ([]string, []string, error) {
 	warnings, err := b.config.Prepare(args...)
 	if err != nil {
@@ -35,25 +39,28 @@ func (b *Builder) Prepare(args ...any) ([]string, []string, error) {
 	return nil, warnings, nil
 }
 
+// Run executes the builder steps to create an Oxide image.
 func (b *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (packer.Artifact, error) {
 	oxideClient, err := oxide.NewClient(&oxide.Config{
 		Host:  b.config.Host,
 		Token: b.config.Token,
 	})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed creating oxide client: %w", err)
 	}
 
 	steps := []multistep.Step{
 		&stepInstanceCreate{},
-		&stepInstanceView{},
+		&stepInstanceExternalIPList{},
 		&communicator.StepConnect{
 			Config:    &b.config.Comm,
 			Host:      communicator.CommHost(b.config.Comm.Host(), "external_ip"),
 			SSHConfig: b.config.Comm.SSHConfigFunc(),
 		},
 		&commonsteps.StepProvision{},
-		&stepInstanceDelete{},
+		&stepInstanceStop{},
+		&stepSnapshotCreate{},
+		&stepImageCreate{},
 	}
 
 	stateBag := &multistep.BasicStateBag{}
@@ -69,7 +76,10 @@ func (b *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (pack
 		return nil, err.(error)
 	}
 
-	artifact := &Artifact{}
+	artifact := &Artifact{
+		ImageID:   stateBag.Get("image_id").(string),
+		ImageName: stateBag.Get("image_name").(string),
+	}
 
 	return artifact, nil
 }

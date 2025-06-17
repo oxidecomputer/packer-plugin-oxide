@@ -8,12 +8,15 @@ packer {
 }
 
 data "oxide-image" "ubuntu" {
-  name    = "noble"
+  name = "noble"
 }
 
 source "oxide-instance" "example" {
-  project     = "matthewsanabria"
-  image_id    = data.oxide-image.ubuntu.image_id
+  project            = "matthewsanabria"
+  boot_disk_image_id = data.oxide-image.ubuntu.image_id
+  ip_pool            = "eng-vpn"
+
+  ssh_public_keys = ["529885a0-2919-463a-a588-ac48f100a165"]
 
   ssh_username   = "ubuntu"
   ssh_agent_auth = true

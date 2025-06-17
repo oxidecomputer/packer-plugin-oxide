@@ -69,8 +69,18 @@ type FlatConfig struct {
 	WinRMUseNTLM              *bool             `mapstructure:"winrm_use_ntlm" cty:"winrm_use_ntlm" hcl:"winrm_use_ntlm"`
 	Host                      *string           `mapstructure:"host" cty:"host" hcl:"host"`
 	Token                     *string           `mapstructure:"token" cty:"token" hcl:"token"`
+	BootDiskImageID           *string           `mapstructure:"boot_disk_image_id" cty:"boot_disk_image_id" hcl:"boot_disk_image_id"`
 	Project                   *string           `mapstructure:"project" cty:"project" hcl:"project"`
-	ImageID                   *string           `mapstructure:"image_id" cty:"image_id" hcl:"image_id"`
+	BootDiskSize              *uint64           `mapstructure:"boot_disk_size" cty:"boot_disk_size" hcl:"boot_disk_size"`
+	IPPool                    *string           `mapstructure:"ip_pool" cty:"ip_pool" hcl:"ip_pool"`
+	VPC                       *string           `mapstructure:"vpc" cty:"vpc" hcl:"vpc"`
+	Subnet                    *string           `mapstructure:"subnet" cty:"subnet" hcl:"subnet"`
+	Name                      *string           `mapstructure:"name" cty:"name" hcl:"name"`
+	Hostname                  *string           `mapstructure:"hostname" cty:"hostname" hcl:"hostname"`
+	CPUs                      *uint64           `mapstructure:"cpus" cty:"cpus" hcl:"cpus"`
+	Memory                    *uint64           `mapstructure:"memory" cty:"memory" hcl:"memory"`
+	SSHPublicKeys             []string          `mapstructure:"ssh_public_keys" cty:"ssh_public_keys" hcl:"ssh_public_keys"`
+	ArtifactName              *string           `mapstructure:"artifact_name" cty:"artifact_name" hcl:"artifact_name"`
 }
 
 // FlatMapstructure returns a new FlatConfig.
@@ -144,8 +154,18 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 		"winrm_use_ntlm":               &hcldec.AttrSpec{Name: "winrm_use_ntlm", Type: cty.Bool, Required: false},
 		"host":                         &hcldec.AttrSpec{Name: "host", Type: cty.String, Required: false},
 		"token":                        &hcldec.AttrSpec{Name: "token", Type: cty.String, Required: false},
+		"boot_disk_image_id":           &hcldec.AttrSpec{Name: "boot_disk_image_id", Type: cty.String, Required: false},
 		"project":                      &hcldec.AttrSpec{Name: "project", Type: cty.String, Required: false},
-		"image_id":                     &hcldec.AttrSpec{Name: "image_id", Type: cty.String, Required: false},
+		"boot_disk_size":               &hcldec.AttrSpec{Name: "boot_disk_size", Type: cty.Number, Required: false},
+		"ip_pool":                      &hcldec.AttrSpec{Name: "ip_pool", Type: cty.String, Required: false},
+		"vpc":                          &hcldec.AttrSpec{Name: "vpc", Type: cty.String, Required: false},
+		"subnet":                       &hcldec.AttrSpec{Name: "subnet", Type: cty.String, Required: false},
+		"name":                         &hcldec.AttrSpec{Name: "name", Type: cty.String, Required: false},
+		"hostname":                     &hcldec.AttrSpec{Name: "hostname", Type: cty.String, Required: false},
+		"cpus":                         &hcldec.AttrSpec{Name: "cpus", Type: cty.Number, Required: false},
+		"memory":                       &hcldec.AttrSpec{Name: "memory", Type: cty.Number, Required: false},
+		"ssh_public_keys":              &hcldec.AttrSpec{Name: "ssh_public_keys", Type: cty.List(cty.String), Required: false},
+		"artifact_name":                &hcldec.AttrSpec{Name: "artifact_name", Type: cty.String, Required: false},
 	}
 	return s
 }
