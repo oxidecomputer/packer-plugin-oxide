@@ -1,0 +1,17 @@
+source "oxide-instance" "test" {
+  {{- if .Project }}
+  project = "{{ .Project }}"
+  {{- end }}
+  {{- if .BootDiskImageID }}
+  boot_disk_image_id = "{{ .BootDiskImageID }}"
+  {{- end }}
+
+  # To build the image without connecting to it during tests.
+  communicator = "none"
+}
+
+build {
+  sources = [
+    "source.oxide-instance.test",
+  ]
+}

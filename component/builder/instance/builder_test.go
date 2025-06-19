@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-package image_test
+package instance_test
 
 import (
 	"embed"
@@ -24,9 +24,9 @@ import (
 //go:embed testdata/*.pkr.hcl.tmpl
 var packerTemplates embed.FS
 
-// TestAccDataSource_Config tests that the data source fails when required
+// TestAccBuilder_Config tests that the builder fails when required
 // configuration attributes are not provided.
-func TestAccDataSource_Config(t *testing.T) {
+func TestAccBuilder_Config(t *testing.T) {
 	if os.Getenv(acctest.TestEnvVar) == "" {
 		t.Skipf("Acceptance tests skipped unless env '%s' set", acctest.TestEnvVar)
 		return
@@ -56,11 +56,14 @@ func TestAccDataSource_Config(t *testing.T) {
 	tt := []*acctest.PluginTestCase{
 		{
 			Name: "MissingAllRequiredFields",
-			Type: "oxide-image",
+			Type: "oxide-instance",
 			Template: executeTemplate(
 				t,
 				"config.pkr.hcl.tmpl",
-				struct{ Name string }{Name: ""},
+				struct {
+					Project         string
+					BootDiskImageID string
+				}{},
 			),
 			Check: func(buildCommand *exec.Cmd, logfile string) error {
 				if buildCommand.ProcessState != nil {
@@ -71,7 +74,8 @@ func TestAccDataSource_Config(t *testing.T) {
 
 				assertFileContains(t, logfile, "host is required")
 				assertFileContains(t, logfile, "token is required")
-				assertFileContains(t, logfile, "name is required")
+				assertFileContains(t, logfile, "project is required")
+				assertFileContains(t, logfile, "boot_disk_image_id is required")
 
 				return nil
 			},
@@ -88,11 +92,17 @@ func TestAccDataSource_Config(t *testing.T) {
 		},
 		{
 			Name: "MissingAPICredentials",
-			Type: "oxide-image",
+			Type: "oxide-instance",
 			Template: executeTemplate(
 				t,
 				"config.pkr.hcl.tmpl",
-				struct{ Name string }{Name: "test-image"},
+				struct {
+					Project         string
+					BootDiskImageID string
+				}{
+					Project:         "test-project",
+					BootDiskImageID: "test-image-id",
+				},
 			),
 			Check: func(buildCommand *exec.Cmd, logfile string) error {
 				if buildCommand.ProcessState != nil {
@@ -118,12 +128,17 @@ func TestAccDataSource_Config(t *testing.T) {
 			},
 		},
 		{
-			Name: "MissingName",
-			Type: "oxide-image",
+			Name: "MissingProject",
+			Type: "oxide-instance",
 			Template: executeTemplate(
 				t,
 				"config.pkr.hcl.tmpl",
-				struct{ Name string }{Name: ""},
+				struct {
+					Project         string
+					BootDiskImageID string
+				}{
+					BootDiskImageID: "test-image-id",
+				},
 			),
 			Check: func(buildCommand *exec.Cmd, logfile string) error {
 				if buildCommand.ProcessState != nil {
@@ -132,7 +147,32 @@ func TestAccDataSource_Config(t *testing.T) {
 					}
 				}
 
-				assertFileContains(t, logfile, "name is required")
+				assertFileContains(t, logfile, "project is required")
+
+				return nil
+			},
+		},
+		{
+			Name: "MissingBootDiskImageID",
+			Type: "oxide-instance",
+			Template: executeTemplate(
+				t,
+				"config.pkr.hcl.tmpl",
+				struct {
+					BootDiskImageID string
+					Project         string
+				}{
+					Project: "test-project",
+				},
+			),
+			Check: func(buildCommand *exec.Cmd, logfile string) error {
+				if buildCommand.ProcessState != nil {
+					if buildCommand.ProcessState.ExitCode() != 1 {
+						return fmt.Errorf("Unexpected exit code. Logfile: %s", logfile)
+					}
+				}
+
+				assertFileContains(t, logfile, "boot_disk_image_id is required")
 
 				return nil
 			},
@@ -146,22 +186,22 @@ func TestAccDataSource_Config(t *testing.T) {
 	}
 }
 
-// TestAccDataSource_Image tests that the data source can successfully read a
-// project image and a silo image from the Oxide API. It makes use of the Setup
-// and Teardown fields within [acctest.PluginTestCase] to create and destroy the
-// required resources in Oxide before running the tests.
+// TestAccBuilder_Instance tests that the builder can successfully boot an
+// instance and create an image from it. It makes use of the Setup and Teardown
+// fields within [acctest.PluginTestCase] to create and destroy the required
+// resources in Oxide before running the tests.
 //
 // There's no requirement to use the Setup and Teardown fields within
 // [acctest.PluginTestCase]. In fact, many Packer plugins don't use those fields
 // and instead use custom setup logic within the test and [testing#T.Cleanup]
 // for teardown logic.
-func TestAccDataSource_Image(t *testing.T) {
+func TestAccBuilder_Instance(t *testing.T) {
 	if os.Getenv(acctest.TestEnvVar) == "" {
 		t.Skipf("Acceptance tests skipped unless env '%s' set", acctest.TestEnvVar)
 		return
 	}
 
-	requiredEnvVars := []string{"OXIDE_HOST", "OXIDE_TOKEN", "OXIDE_PROJECT"}
+	requiredEnvVars := []string{"OXIDE_HOST", "OXIDE_TOKEN", "OXIDE_PROJECT", "OXIDE_BOOT_DISK_IMAGE_ID"}
 	for _, envVar := range requiredEnvVars {
 		if os.Getenv(envVar) == "" {
 			t.Fatalf("%s environment variable is required", envVar)
@@ -176,20 +216,29 @@ func TestAccDataSource_Image(t *testing.T) {
 	}
 
 	oxideProject := os.Getenv("OXIDE_PROJECT")
+	oxideBootDiskImageID := os.Getenv("OXIDE_BOOT_DISK_IMAGE_ID")
 
 	tt := []struct {
-		testName  string
-		project   string
-		siloImage bool
+		testName        string
+		project         string
+		bootDiskImageID string
+		cpus            uint64
+		memory          uint64
+		bootDiskSize    uint64
+		artifactName    string
 	}{
 		{
-			testName: "ProjectImage",
-			project:  oxideProject,
+			testName:        "DefaultConfiguration",
+			project:         oxideProject,
+			bootDiskImageID: oxideBootDiskImageID,
 		},
 		{
-			testName:  "SiloImage",
-			project:   oxideProject,
-			siloImage: true,
+			testName:        "CustomConfiguration",
+			project:         oxideProject,
+			bootDiskImageID: oxideBootDiskImageID,
+			cpus:            2,
+			memory:          4 * 1024 * 1024 * 1024,  // 4 GiB
+			bootDiskSize:    30 * 1024 * 1024 * 1024, // 30 GiB
 		},
 	}
 
@@ -200,124 +249,44 @@ func TestAccDataSource_Image(t *testing.T) {
 			// allows the test to create and destroy resources within the Setup and Teardown
 			// fields without creating some other mechanism to share state.
 			testID := fmt.Sprintf("packer-%d", time.Now().UnixNano())
-
-			diskName := fmt.Sprintf("%s-%s", testID, "disk")
-			snapshotName := fmt.Sprintf("%s-%s", testID, "snapshot")
-			imageName := fmt.Sprintf("%s-%s", testID, "image")
+			artifactName := fmt.Sprintf("%s-%s", testID, "artifact")
 
 			var packerTemplate strings.Builder
-			if err := tmpl.ExecuteTemplate(&packerTemplate, "image.pkr.hcl.tmpl", struct {
-				Name      string
-				Project   string
-				SiloImage bool
+			if err := tmpl.ExecuteTemplate(&packerTemplate, "instance.pkr.hcl.tmpl", struct {
+				Project         string
+				BootDiskImageID string
+				CPUs            uint64
+				Memory          uint64
+				BootDiskSize    uint64
+				ArtifactName    string
 			}{
-				Name:      imageName,
-				Project:   tc.project,
-				SiloImage: tc.siloImage,
-			}); err != nil {
+				Project:         tc.project,
+				BootDiskImageID: tc.bootDiskImageID,
+				CPUs:            tc.cpus,
+				Memory:          tc.memory,
+				BootDiskSize:    tc.bootDiskSize,
+				ArtifactName:    artifactName,
+			},
+			); err != nil {
 				t.Fatalf("failed rendering packer template: %v", err)
 			}
 
 			acctest.TestPlugin(t, &acctest.PluginTestCase{
 				Name:     tc.testName,
-				Type:     "oxide-image",
+				Type:     "oxide-instance",
 				Template: packerTemplate.String(),
 				Setup: func() error {
-					t.Logf("setup: creating oxide disk %s", diskName)
-					disk, err := oxideClient.DiskCreate(t.Context(), oxide.DiskCreateParams{
-						Project: oxide.NameOrId(tc.project),
-						Body: &oxide.DiskCreate{
-							Name:        oxide.Name(diskName),
-							Description: fmt.Sprintf("Packer acceptance test %s.", testID),
-							DiskSource: oxide.DiskSource{
-								BlockSize: 4096,
-								Type:      oxide.DiskSourceTypeBlank,
-							},
-							Size: 1024 * 1024 * 1024, // 1 GiB.
-						},
-					})
-					if err != nil {
-						return fmt.Errorf("failed creating disk %s: %v", diskName, err)
-					}
-
-					t.Logf("setup: creating oxide snapshot %s", snapshotName)
-					snapshot, err := oxideClient.SnapshotCreate(t.Context(), oxide.SnapshotCreateParams{
-						Project: oxide.NameOrId(tc.project),
-						Body: &oxide.SnapshotCreate{
-							Name:        oxide.Name(snapshotName),
-							Description: fmt.Sprintf("Packer acceptance test %s.", testID),
-							Disk:        oxide.NameOrId(disk.Id),
-						},
-					})
-					if err != nil {
-						return fmt.Errorf("failed creating snapshot %s: %v", snapshotName, err)
-					}
-
-					t.Logf("setup: creating oxide image %s", imageName)
-					_, err = oxideClient.ImageCreate(t.Context(), oxide.ImageCreateParams{
-						Project: oxide.NameOrId(tc.project),
-						Body: &oxide.ImageCreate{
-							Name:        oxide.Name(imageName),
-							Description: fmt.Sprintf("Packer acceptance test %s.", testID),
-							Os:          "Blank",
-							Version:     "0.0.0",
-							Source: oxide.ImageSource{
-								Id:   snapshot.Id,
-								Type: oxide.ImageSourceTypeSnapshot,
-							},
-						},
-					})
-					if err != nil {
-						return fmt.Errorf("failed creating image %s: %v", imageName, err)
-					}
-
-					if tc.siloImage {
-						t.Logf("setup: promoting oxide image %s", imageName)
-						if _, err := oxideClient.ImagePromote(t.Context(), oxide.ImagePromoteParams{
-							Image:   oxide.NameOrId(imageName),
-							Project: oxide.NameOrId(oxideProject),
-						}); err != nil {
-							return fmt.Errorf("failed promoting oxide image %s: %v", imageName, err)
-						}
-					}
-
 					return nil
 				},
 				Teardown: func() error {
 					var joinedError error
 
-					if tc.siloImage {
-						t.Logf("teardown: demoting oxide image %s", imageName)
-						if _, err := oxideClient.ImageDemote(t.Context(), oxide.ImageDemoteParams{
-							Image:   oxide.NameOrId(imageName),
-							Project: oxide.NameOrId(oxideProject),
-						}); err != nil {
-							joinedError = errors.Join(joinedError, fmt.Errorf("failed demoting oxide image %s: %v", imageName, err))
-						}
-					}
-
-					t.Logf("teardown: deleting oxide image %s", imageName)
+					t.Logf("teardown: deleting oxide image %s", artifactName)
 					if err := oxideClient.ImageDelete(t.Context(), oxide.ImageDeleteParams{
-						Image:   oxide.NameOrId(imageName),
+						Image:   oxide.NameOrId(artifactName),
 						Project: oxide.NameOrId(oxideProject),
 					}); err != nil {
-						joinedError = errors.Join(joinedError, fmt.Errorf("failed deleting oxide image %s: %v", imageName, err))
-					}
-
-					t.Logf("teardown: deleting oxide snapshot %s", snapshotName)
-					if err := oxideClient.SnapshotDelete(t.Context(), oxide.SnapshotDeleteParams{
-						Snapshot: oxide.NameOrId(snapshotName),
-						Project:  oxide.NameOrId(oxideProject),
-					}); err != nil {
-						joinedError = errors.Join(joinedError, fmt.Errorf("failed deleting oxide snapshot %s: %v", snapshotName, err))
-					}
-
-					t.Logf("teardown: deleting oxide disk %s", diskName)
-					if err := oxideClient.DiskDelete(t.Context(), oxide.DiskDeleteParams{
-						Disk:    oxide.NameOrId(diskName),
-						Project: oxide.NameOrId(oxideProject),
-					}); err != nil {
-						joinedError = errors.Join(joinedError, fmt.Errorf("failed deleting oxide disk %s: %v", imageName, err))
+						joinedError = errors.Join(joinedError, fmt.Errorf("failed deleting oxide image %s: %v", artifactName, err))
 					}
 
 					if joinedError != nil {
@@ -332,6 +301,8 @@ func TestAccDataSource_Image(t *testing.T) {
 							return fmt.Errorf("Bad exit code. Logfile: %s", logfile)
 						}
 					}
+
+					assertFileContains(t, logfile, "Build 'oxide-instance.test' finished after")
 
 					return nil
 				},

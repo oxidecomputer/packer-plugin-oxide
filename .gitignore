@@ -4,6 +4,11 @@ packer-plugin-oxide
 
 # Logs.
 crash.log
+**/packer_log*.txt
+
+# Configuration.
+**/*.pkr.hcl
+!example/*.pkr.hcl
 
 # Documentation.
 dist/*

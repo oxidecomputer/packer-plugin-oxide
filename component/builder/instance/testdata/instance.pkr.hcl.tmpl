@@ -1,0 +1,29 @@
+source "oxide-instance" "test" {
+  {{- if .Project }}
+  project = "{{ .Project }}"
+  {{- end }}
+  {{- if .BootDiskImageID }}
+  boot_disk_image_id = "{{ .BootDiskImageID }}"
+  {{- end }}
+  {{- if .CPUs }}
+  cpus = {{ .CPUs }}
+  {{- end }}
+  {{- if .Memory }}
+  memory = {{ .Memory }}
+  {{- end }}
+  {{- if .BootDiskSize }}
+  boot_disk_size = {{ .BootDiskSize }}
+  {{- end }}
+  {{- if .ArtifactName }}
+  artifact_name = "{{ .ArtifactName }}"
+  {{- end }}
+
+  # To build the image without connecting to it during tests.
+  communicator = "none"
+}
+
+build {
+  sources = [
+    "sources.oxide-instance.test"
+  ]
+}
