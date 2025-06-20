@@ -25,7 +25,7 @@ type Config struct {
 	common.PackerConfig `mapstructure:",squash"`
 
 	// Packer communicator configuration to configure how Packer connects to the
-    // instance for provisioning.
+	// instance for provisioning.
 	Comm communicator.Config `mapstructure:",squash"`
 
 	// Oxide API URL (e.g., `https://oxide.sys.example.com`). If not specified, this

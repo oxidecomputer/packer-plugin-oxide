@@ -6,6 +6,8 @@ package instance
 
 import (
 	"context"
+	"fmt"
+	"time"
 
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	"github.com/hashicorp/packer-plugin-sdk/packer"
@@ -94,12 +96,68 @@ func (o *stepInstanceCreate) Cleanup(stateBag multistep.StateBag) {
 	if instanceIDRaw, ok := stateBag.GetOk("instance_id"); ok {
 		instanceID := instanceIDRaw.(string)
 
+		ui.Sayf("Checking if Oxide instance is stopped: %s", instanceID)
+
+		instanceStopCtx, instanceStopCtxCancel := context.WithTimeout(context.TODO(), 30*time.Second)
+		defer instanceStopCtxCancel()
+
+		instance, err := oxideClient.InstanceView(instanceStopCtx, oxide.InstanceViewParams{
+			Instance: oxide.NameOrId(instanceID),
+		})
+		if err != nil {
+			ui.Errorf("Failed viewing Oxide instance state: %v", err)
+			return
+		}
+
+		if instance.RunState == oxide.InstanceStateStopped {
+			goto deleteInstance
+		}
+
+		ui.Sayf("Stopping Oxide instance: %s", instanceID)
+
+		if _, err := oxideClient.InstanceStop(instanceStopCtx, oxide.InstanceStopParams{
+			Instance: oxide.NameOrId(instanceID),
+		}); err != nil {
+			ui.Errorf("Failed stopping Oxide instance during cleanup. Please delete it manually: %v", err)
+			return
+		}
+
+		for {
+			select {
+			case <-instanceStopCtx.Done():
+				ui.Error("Timed out waiting for Oxide instance to stop.")
+				return
+			default:
+			}
+
+			instance, err := oxideClient.InstanceView(instanceStopCtx, oxide.InstanceViewParams{
+				Instance: oxide.NameOrId(instanceID),
+			})
+			if err != nil {
+				ui.Errorf("Failed refreshing Oxide instance state: %v", err)
+				time.Sleep(3 * time.Second)
+				continue
+			}
+
+			if instance.RunState == oxide.InstanceStateStopped {
+				break
+			}
+
+			ui.Say(fmt.Sprintf("Waiting for instance to stop. Instance is currently %s.", instance.RunState))
+			time.Sleep(3 * time.Second)
+		}
+
+	deleteInstance:
 		ui.Sayf("Deleting Oxide instance: %s", instanceID)
 
-		if err := oxideClient.InstanceDelete(context.TODO(), oxide.InstanceDeleteParams{
+		instanceDeleteCtx, instanceDeleteCtxCancel := context.WithTimeout(context.TODO(), 30*time.Second)
+		defer instanceDeleteCtxCancel()
+
+		if err := oxideClient.InstanceDelete(instanceDeleteCtx, oxide.InstanceDeleteParams{
 			Instance: oxide.NameOrId(instanceID),
 		}); err != nil {
 			ui.Errorf("Failed deleting Oxide instance during cleanup. Please delete it manually: %v", err)
+			return
 		}
 	}
 
@@ -108,10 +166,14 @@ func (o *stepInstanceCreate) Cleanup(stateBag multistep.StateBag) {
 
 		ui.Sayf("Deleting Oxide disk: %s", bootDiskID)
 
-		if err := oxideClient.DiskDelete(context.TODO(), oxide.DiskDeleteParams{
+		diskDeleteCtx, diskDeleteCtxCancel := context.WithTimeout(context.TODO(), 30*time.Second)
+		defer diskDeleteCtxCancel()
+
+		if err := oxideClient.DiskDelete(diskDeleteCtx, oxide.DiskDeleteParams{
 			Disk: oxide.NameOrId(bootDiskID),
 		}); err != nil {
 			ui.Errorf("Failed deleting Oxide disk during cleanup. Please delete it manually: %v", err)
+			return
 		}
 	}
 }
