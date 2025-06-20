@@ -2,8 +2,8 @@ Type: `oxide-image`
 
 <!-- Code generated from the comments of the Datasource struct in component/data-source/image/data_source.go; DO NOT EDIT MANUALLY -->
 
-The Oxide `image` data source fetches the image ID for an Oxide image using
-its name. The image can be a project image or silo image.
+This data source fetches the image ID for an Oxide image using its name. The
+image can be a project image or silo image.
 
 <!-- End of code generated from the comments of the Datasource struct in component/data-source/image/data_source.go; -->
 
