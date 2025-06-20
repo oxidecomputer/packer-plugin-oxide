@@ -6,6 +6,7 @@ package instance
 
 import (
 	"context"
+	"time"
 
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	"github.com/hashicorp/packer-plugin-sdk/packer"
@@ -64,10 +65,14 @@ func (s *stepSnapshotCreate) Cleanup(stateBag multistep.StateBag) {
 
 		ui.Sayf("Deleting Oxide snapshot: %s", snapshotID)
 
-		if err := oxideClient.SnapshotDelete(context.Background(), oxide.SnapshotDeleteParams{
+		snapshotDeleteCtx, snapshotDeletCtxCancel := context.WithTimeout(context.TODO(), 30*time.Second)
+		defer snapshotDeletCtxCancel()
+
+		if err := oxideClient.SnapshotDelete(snapshotDeleteCtx, oxide.SnapshotDeleteParams{
 			Snapshot: oxide.NameOrId(snapshotID),
 		}); err != nil {
 			ui.Errorf("Failed deleting Oxide snapshot during cleanup. Please delete it manually: %v", err)
+			return
 		}
 	}
 }
