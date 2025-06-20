@@ -67,10 +67,10 @@ type FlatConfig struct {
 	WinRMUseSSL               *bool             `mapstructure:"winrm_use_ssl" cty:"winrm_use_ssl" hcl:"winrm_use_ssl"`
 	WinRMInsecure             *bool             `mapstructure:"winrm_insecure" cty:"winrm_insecure" hcl:"winrm_insecure"`
 	WinRMUseNTLM              *bool             `mapstructure:"winrm_use_ntlm" cty:"winrm_use_ntlm" hcl:"winrm_use_ntlm"`
-	Host                      *string           `mapstructure:"host" cty:"host" hcl:"host"`
-	Token                     *string           `mapstructure:"token" cty:"token" hcl:"token"`
-	BootDiskImageID           *string           `mapstructure:"boot_disk_image_id" cty:"boot_disk_image_id" hcl:"boot_disk_image_id"`
-	Project                   *string           `mapstructure:"project" cty:"project" hcl:"project"`
+	Host                      *string           `mapstructure:"host" required:"true" cty:"host" hcl:"host"`
+	Token                     *string           `mapstructure:"token" required:"true" cty:"token" hcl:"token"`
+	BootDiskImageID           *string           `mapstructure:"boot_disk_image_id" required:"true" cty:"boot_disk_image_id" hcl:"boot_disk_image_id"`
+	Project                   *string           `mapstructure:"project" required:"true" cty:"project" hcl:"project"`
 	BootDiskSize              *uint64           `mapstructure:"boot_disk_size" cty:"boot_disk_size" hcl:"boot_disk_size"`
 	IPPool                    *string           `mapstructure:"ip_pool" cty:"ip_pool" hcl:"ip_pool"`
 	VPC                       *string           `mapstructure:"vpc" cty:"vpc" hcl:"vpc"`

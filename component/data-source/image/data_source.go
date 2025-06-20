@@ -20,24 +20,24 @@ import (
 	"github.com/zclconf/go-cty/cty"
 )
 
-var _ packer.Datasource = (*DataSource)(nil)
+var _ packer.Datasource = (*Datasource)(nil)
 
-// DataSource is the concrete type that implements the Packer data source
-// component interface.
-type DataSource struct {
+// This data source fetches the image ID for an Oxide image using its name. The
+// image can be a project image or silo image.
+type Datasource struct {
 	config Config
 }
 
 // ConfigSpec returns the HCL specification that Packer uses to validate and
 // configure this plugin component.
-func (d *DataSource) ConfigSpec() hcldec.ObjectSpec {
+func (d *Datasource) ConfigSpec() hcldec.ObjectSpec {
 	return d.config.FlatMapstructure().HCL2Spec()
 }
 
 // Configure decodes the configuration for this plugin component, checks whether
 // the configuration is valid, and stores any necessary state for future methods
 // to use during execution.
-func (d *DataSource) Configure(args ...any) error {
+func (d *Datasource) Configure(args ...any) error {
 	if err := config.Decode(&d.config, nil, args...); err != nil {
 		return fmt.Errorf("failed decoding configuration: %w", err)
 	}
@@ -79,7 +79,7 @@ func (d *DataSource) Configure(args ...any) error {
 
 // Execute fetches image information from the Oxide API and returns that
 // information in the format specified by [OutputSpec].
-func (d *DataSource) Execute() (cty.Value, error) {
+func (d *Datasource) Execute() (cty.Value, error) {
 	oxideClient, err := oxide.NewClient(&oxide.Config{
 		Host:  d.config.Host,
 		Token: d.config.Token,
@@ -96,7 +96,7 @@ func (d *DataSource) Execute() (cty.Value, error) {
 		return cty.NullVal(cty.EmptyObject), fmt.Errorf("failed fetching image %q within project %q: %w", d.config.Name, d.config.Project, err)
 	}
 
-	output := Output{
+	output := DatasourceOutput{
 		ImageID: image.Id,
 	}
 
@@ -105,6 +105,6 @@ func (d *DataSource) Execute() (cty.Value, error) {
 
 // OutputSpec returns the HCL specification that Packer uses to populate output
 // values for this plugin component.
-func (d *DataSource) OutputSpec() hcldec.ObjectSpec {
-	return (&Output{}).FlatMapstructure().HCL2Spec()
+func (d *Datasource) OutputSpec() hcldec.ObjectSpec {
+	return (&DatasourceOutput{}).FlatMapstructure().HCL2Spec()
 }

@@ -1,0 +1,56 @@
+---
+description: >
+  This builder creates custom images on Oxide. The builder launches a temporary
+  instance, connects to it using its external IP, provisions it, and then
+  creates an image from the instance's boot disk. The resulting image can be
+  used to launch new instances.
+page_title: Oxide Instance - Builder
+nav_title: oxide-instance
+---
+
+# Oxide Instance - Builder
+
+Type: `oxide-instance`
+
+@include 'component/builder/instance/Builder.mdx'
+
+## Configuration
+
+@include 'component/builder/instance/Config.mdx'
+
+### Required
+
+@include 'component/builder/instance/Config-required.mdx'
+
+### Optional
+
+@include 'component/builder/instance/Config-not-required.mdx'
+
+## Examples
+
+Basic build using environment variables for Oxide credentials.
+
+```hcl
+source "oxide-instance" "example" {
+  project            = "oxide"
+  boot_disk_image_id = "feb2c8ee-5a1d-4d66-beeb-289b860561bf"
+
+  ssh_public_keys = [
+    "529885a0-2919-463a-a588-ac48f100a165",
+  ]
+
+  ssh_username   = "ubuntu"
+}
+
+build {
+  sources = [
+    "source.oxide-instance.example",
+  ]
+
+  provisioner "shell" {
+    inline = [
+      "echo 'Hello from Packer!'",
+    ]
+  }
+}
+```

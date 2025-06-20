@@ -2,6 +2,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+//go:generate packer-sdc struct-markdown
+
 package instance
 
 import (
@@ -18,7 +20,10 @@ import (
 
 var _ packer.Builder = (*Builder)(nil)
 
-// Builder is an implementation of [packer.Builder] for use with Oxide.
+// This builder creates custom images on Oxide. The builder launches a temporary
+// instance, connects to it using its external IP, provisions it, and then
+// creates an image from the instance's boot disk. The resulting image can be
+// used to launch new instances.
 type Builder struct {
 	config Config
 	runner multistep.Runner
