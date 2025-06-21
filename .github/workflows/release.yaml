@@ -68,7 +68,7 @@ jobs:
 
       - name: Describe Plugin
         id: plugin_describe
-        run: echo "api_version="$(go run . describe | jq -r '.api_version')" >> $GITHUB_OUTPUT"
+        run: echo "api_version=$(go run . describe | jq -r '.api_version')" >> $GITHUB_OUTPUT
 
       # TODO: Configure signing.
       # - name: Import GPG key
