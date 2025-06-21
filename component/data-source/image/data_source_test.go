@@ -27,6 +27,11 @@ var packerTemplates embed.FS
 // TestAccDataSource_Config tests that the oxide-image data source fails when
 // required configuration attributes are not provided.
 func TestAccDataSource_Config(t *testing.T) {
+	if os.Getenv(acctest.TestEnvVar) == "" {
+		t.Skipf("Acceptance tests skipped unless env '%s' set", acctest.TestEnvVar)
+		return
+	}
+
 	requiredEnvVars := []string{"OXIDE_HOST", "OXIDE_TOKEN"}
 	for _, envVar := range requiredEnvVars {
 		if os.Getenv(envVar) == "" {
@@ -159,6 +164,11 @@ func TestAccDataSource_Config(t *testing.T) {
 // change to experiment with the APIs provided by [acctest.PluginTestCase] to
 // see how they work.
 func TestAccDataSource_Image(t *testing.T) {
+	if os.Getenv(acctest.TestEnvVar) == "" {
+		t.Skipf("Acceptance tests skipped unless env '%s' set", acctest.TestEnvVar)
+		return
+	}
+
 	requiredEnvVars := []string{"OXIDE_HOST", "OXIDE_TOKEN", "OXIDE_PROJECT"}
 	for _, envVar := range requiredEnvVars {
 		if os.Getenv(envVar) == "" {
