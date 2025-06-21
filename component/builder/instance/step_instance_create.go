@@ -82,6 +82,37 @@ func (o *stepInstanceCreate) Run(ctx context.Context, stateBag multistep.StateBa
 
 	ui.Sayf("Created Oxide instance: %s", instance.Id)
 
+	ui.Sayf("Waiting for Oxide instance to start: Currently %s.", instance.RunState)
+
+	startCtx, startCtxCancel := context.WithTimeout(ctx, 30*time.Second)
+	defer startCtxCancel()
+
+	for {
+		select {
+		case <-startCtx.Done():
+			ui.Error("Timed out waiting for Oxide instance to start.")
+			return multistep.ActionHalt
+		default:
+		}
+
+		instance, err := oxideClient.InstanceView(startCtx, oxide.InstanceViewParams{
+			Instance: oxide.NameOrId(instance.Id),
+		})
+		if err != nil {
+			ui.Error("Failed refreshing Oxide instance state.")
+			stateBag.Put("error", err)
+			return multistep.ActionHalt
+		}
+
+		if instance.RunState == oxide.InstanceStateRunning {
+			ui.Say(fmt.Sprintf("Oxide instance is %s.", instance.RunState))
+			break
+		}
+
+		ui.Say(fmt.Sprintf("Waiting for Oxide instance to start: Currently %s.", instance.RunState))
+		time.Sleep(3 * time.Second)
+	}
+
 	stateBag.Put("instance_id", instance.Id)
 	stateBag.Put("boot_disk_id", instance.BootDiskId)
 

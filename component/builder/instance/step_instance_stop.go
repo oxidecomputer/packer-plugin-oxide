@@ -33,13 +33,16 @@ func (s *stepInstanceStop) Run(ctx context.Context, stateBag multistep.StateBag)
 	}
 	instanceID := instanceIDRaw.(string)
 
-	if _, err := oxideClient.InstanceStop(ctx, oxide.InstanceStopParams{
+	instance, err := oxideClient.InstanceStop(ctx, oxide.InstanceStopParams{
 		Instance: oxide.NameOrId(instanceID),
-	}); err != nil {
+	})
+	if err != nil {
 		ui.Error("Failed stopping Oxide instance.")
 		stateBag.Put("error", err)
 		return multistep.ActionHalt
 	}
+
+	ui.Sayf("Waiting for Oxide instance to stop: Currently %s.", instance.RunState)
 
 	timeoutCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
@@ -56,16 +59,17 @@ func (s *stepInstanceStop) Run(ctx context.Context, stateBag multistep.StateBag)
 			Instance: oxide.NameOrId(instanceID),
 		})
 		if err != nil {
-			ui.Error("Failed viewing Oxide instance.")
+			ui.Error("Failed refreshing Oxide instance state.")
 			stateBag.Put("error", err)
 			return multistep.ActionHalt
 		}
 
 		if instance.RunState == oxide.InstanceStateStopped {
+			ui.Say(fmt.Sprintf("Oxide instance is %s.", instance.RunState))
 			break
 		}
 
-		ui.Say(fmt.Sprintf("Waiting for instance to stop. Instance is currently %s.", instance.RunState))
+		ui.Say(fmt.Sprintf("Waiting for Oxide instance to stop: Currently %s.", instance.RunState))
 		time.Sleep(3 * time.Second)
 	}
 
