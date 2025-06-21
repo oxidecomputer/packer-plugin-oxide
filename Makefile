@@ -20,7 +20,7 @@ install-packer-sdc:
 	go install github.com/hashicorp/packer-plugin-sdk/cmd/packer-sdc@${PACKER_PLUGIN_SDK_VERSION}
 
 .PHONY: plugin-check
-plugin-check: install-packer-sdc
+plugin-check: install-packer-sdc build
 	packer-sdc plugin-check ${PLUGIN_BINARY}
 
 .PHONY: generate
