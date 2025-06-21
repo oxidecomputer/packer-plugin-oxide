@@ -21,24 +21,25 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Init
-        uses: hashicorp/packer-github-actions@master
+      - name: Setup Packer
+        uses: hashicorp/setup-packer@main
         with:
-          working_directory: ${{ github.event.inputs.working_directory }}
-          command: init
+          version: latest
+
+      - name: Init
+        run: packer init .
+        working-directory: ${{ github.event.inputs.working_directory }}
 
       - name: Validate
-        uses: hashicorp/packer-github-actions@master
-        with:
-          working_directory: ${{ github.event.inputs.working_directory }}
-          command: validate
+        run: packer validate .
+        working-directory: ${{ github.event.inputs.working_directory }}
         env:
           PACKER_LOG: ${{ github.event.inputs.packer_log}}
 
       - name: Build
-        uses: hashicorp/packer-github-actions@master
-        with:
-          working_directory: ${{ github.event.inputs.working_directory }}
-          command: build
+        run: packer build .
+        working-directory: ${{ github.event.inputs.working_directory }}
         env:
           PACKER_LOG: ${{ github.event.inputs.packer_log}}
+          OXIDE_HOST: ${{ secrets.OXIDE_HOST }}
+          OXIDE_TOKEN: ${{ secrets.OXIDE_TOKEN }}
