@@ -1,0 +1,29 @@
+= Example
+
+This directory contains an example Packer configuration for using this Oxide
+Packer plugin. This is primarily run via CI/CD but it's also a good reference
+for users.
+
+== Usage
+
+Export your Oxide credentials environment variables.
+
+[source,sh]
+----
+export OXIDE_HOST="https://oxide.sys.example.com"
+export OXIDE_TOKEN="oxide-token-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+----
+
+Initialize the configuration.
+
+[source,sh]
+----
+packer init template.pkr.hcl
+----
+
+Run the build.
+
+[source,sh]
+----
+packer build template.pkr.hcl
+----

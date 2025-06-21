@@ -1,0 +1,44 @@
+---
+name: Test Example Configuration
+
+on:
+  workflow_dispatch:
+    inputs:
+      packer_log:
+        description: "Value for PACKER_LOG."
+        required: false
+        default: "0"
+      working_directory:
+        description: "Working directory containing Packer configuration to test."
+        required: false
+        default: "./example"
+
+jobs:
+  packer:
+    runs-on: ubuntu-latest
+    name: Run Packer
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Init
+        uses: hashicorp/packer-github-actions@master
+        with:
+          working_directory: ${{ github.event.inputs.working_directory }}
+          command: init
+
+      - name: Validate
+        uses: hashicorp/packer-github-actions@master
+        with:
+          working_directory: ${{ github.event.inputs.working_directory }}
+          command: validate
+        env:
+          PACKER_LOG: ${{ github.event.inputs.packer_log}}
+
+      - name: Build
+        uses: hashicorp/packer-github-actions@master
+        with:
+          working_directory: ${{ github.event.inputs.working_directory }}
+          command: build
+        env:
+          PACKER_LOG: ${{ github.event.inputs.packer_log}}

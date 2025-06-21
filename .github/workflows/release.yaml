@@ -1,4 +1,6 @@
 ---
+name: Release
+
 on:
   push:
     tags:
@@ -11,8 +13,6 @@ on:
 
 permissions:
   contents: write
-
-name: Release
 
 # Don't run multiple releases at the same time.
 concurrency:
