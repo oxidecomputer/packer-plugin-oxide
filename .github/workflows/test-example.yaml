@@ -35,6 +35,8 @@ jobs:
         working-directory: ${{ github.event.inputs.working_directory }}
         env:
           PACKER_LOG: ${{ github.event.inputs.packer_log}}
+          OXIDE_HOST: ${{ secrets.OXIDE_HOST }}
+          OXIDE_TOKEN: ${{ secrets.OXIDE_TOKEN }}
 
       - name: Build
         run: packer build .
