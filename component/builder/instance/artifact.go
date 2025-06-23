@@ -21,7 +21,7 @@ type Artifact struct {
 
 // BuilderId returns the builder ID used to create this artifact.
 func (*Artifact) BuilderId() string {
-	return "oxide.instance"
+	return BuilderID
 }
 
 // Files returns the files associated with the artifact.

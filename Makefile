@@ -6,6 +6,9 @@ PACKER_PLUGIN_SDK_VERSION=$(shell go list -f '{{ .Version }}' -m github.com/hash
 TEST_COUNT?=1
 TEST_PACKAGES?=$(shell go list ./...)
 
+OXIDE_PROJECT ?= packer-acc-test
+OXIDE_BOOT_DISK_IMAGE_ID ?= feb2c8ee-5a1d-4d66-beeb-289b860561bf
+
 .PHONY: build
 build:
 	go build -o ${PLUGIN_BINARY}
@@ -37,4 +40,4 @@ test:
 
 .PHONY: testacc
 testacc: dev
-	PACKER_ACC=1 go test -count $(TEST_COUNT) -v $(TEST_PACKAGES) -timeout=120m
+	PACKER_ACC=1 OXIDE_PROJECT=$(OXIDE_PROJECT) OXIDE_BOOT_DISK_IMAGE_ID=$(OXIDE_BOOT_DISK_IMAGE_ID) go test -count $(TEST_COUNT) -v $(TEST_PACKAGES) -timeout=120m

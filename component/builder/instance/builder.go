@@ -18,6 +18,8 @@ import (
 	"github.com/oxidecomputer/oxide.go/oxide"
 )
 
+const BuilderID = "oxide.instance"
+
 var _ packer.Builder = (*Builder)(nil)
 
 // This builder creates custom images on Oxide. The builder launches a temporary

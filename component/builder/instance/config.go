@@ -8,6 +8,7 @@
 package instance
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
@@ -87,12 +88,12 @@ func (c *Config) Prepare(args ...any) ([]string, error) {
 		Metadata:           &metadata,
 		Interpolate:        true,
 		InterpolateContext: &c.ctx,
-		PluginType:         "packer.builder.oxide",
+		PluginType:         BuilderID,
 	}, args...); err != nil {
 		return nil, fmt.Errorf("failed decoding configuration: %w", err)
 	}
 
-	// Defaults.
+	// Set defaults.
 	{
 		if c.Host == "" {
 			c.Host = os.Getenv("OXIDE_HOST")
@@ -150,11 +151,28 @@ func (c *Config) Prepare(args ...any) ([]string, error) {
 		}
 	}
 
+	// Enforce required configuration.
 	{
 		var multiErr *packer.MultiError
 
 		if errs := c.Comm.Prepare(&c.ctx); len(errs) > 0 {
 			multiErr = packer.MultiErrorAppend(multiErr, errs...)
+		}
+
+		if c.Host == "" {
+			multiErr = packer.MultiErrorAppend(multiErr, errors.New("host is required"))
+		}
+
+		if c.Token == "" {
+			multiErr = packer.MultiErrorAppend(multiErr, errors.New("token is required"))
+		}
+
+		if c.Project == "" {
+			multiErr = packer.MultiErrorAppend(multiErr, errors.New("project is required"))
+		}
+
+		if c.BootDiskImageID == "" {
+			multiErr = packer.MultiErrorAppend(multiErr, errors.New("boot_disk_image_id is required"))
 		}
 
 		if multiErr != nil && len(multiErr.Errors) > 0 {
