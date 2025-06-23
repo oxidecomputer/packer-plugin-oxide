@@ -1,5 +1,5 @@
-The [Oxide](https://oxide.computer) Packer plugin is a multi-component plugin
-for building Oxide images.
+The [Oxide](https://oxide.computer) multi-component plugin can be used
+with HashiCorp (IBM) Packer to create custom Oxide images.
 
 ## Installation
 
@@ -11,7 +11,7 @@ packer {
   required_plugins {
     oxide = {
       source  = "github.com/oxidecomputer/oxide"
-      version = ">= 1.0.0"
+      version = ">= 0.1.0"
     }
   }
 }

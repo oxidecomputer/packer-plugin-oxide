@@ -1,1 +1,54 @@
-= Oxide Packer Plugin
+= Packer Plugin Oxide
+
+The https://oxide.computer[Oxide] multi-component plugin can be used with
+HashiCorp (IBM) Packer to create custom Oxide images. The documentation within
+link:docs[`docs`] describes the full list of available features for this plugin.
+
+== Installation
+
+=== Install Using Packer
+
+To install this plugin, add the following to your Packer configuration and run
+`packer init`.
+
+[source,hcl]
+----
+packer {
+  required_plugins {
+    oxide = {
+      source  = "github.com/oxidecomputer/oxide"
+      version = ">= 0.1.0"
+    }
+  }
+}
+----
+
+Alternatively, use `packer plugins install` to install this plugin.
+
+[source,sh]
+----
+packer plugins install github.com/oxidecomputer/oxide
+----
+
+=== Manual Installation
+
+Pre-built releases are located on the
+https://github.com/oxidecomputer/packer-plugin-oxide/releases[GitHub releases]
+page. Downloaded the release for your target platform and unarchive it
+to retrieve the plugin binary. Install the plugin binary by following the
+https://developer.hashicorp.com/packer/docs/plugins/install[Installing Plugins]
+documentation.
+
+=== Build from Source
+
+Clone the GitHub repository locally and run `make build` to build
+the plugin for your target platform. Upon successful compliation,
+a `packer-plugin-oxide` plugin binary can be found in the root
+of this repository. Install the plugin binary by following the
+https://developer.hashicorp.com/packer/docs/plugins/install[Installing Plugins]
+documentation.
+
+== Configuration
+
+The documentation within link:docs[`docs`] describes the full list of available
+features for this plugin.
