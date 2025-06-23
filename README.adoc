@@ -33,9 +33,9 @@ packer plugins install github.com/oxidecomputer/oxide
 === Manual Installation
 
 Pre-built releases are located on the
-https://github.com/oxidecomputer/packer-plugin-oxide/releases[GitHub releases]
-page. Downloaded the release for your target platform and unarchive it
-to retrieve the plugin binary. Install the plugin binary by following the
+https://github.com/oxidecomputer/packer-plugin-oxide/releases[GitHub
+releases] page. Download the release for your target platform and unarchive
+it to retrieve the plugin binary. Install the plugin binary by following the
 https://developer.hashicorp.com/packer/docs/plugins/install[Installing Plugins]
 documentation.
 
