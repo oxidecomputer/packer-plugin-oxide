@@ -258,6 +258,10 @@ successfully built and released.
 
 . Update the release notes for the release.
 
-. Checkout the release tag and update the `main.Version` value in `main.go` and
-push a commit. This can be skipped for patch releases that aren't released from
-the default branch.
+. Checkout the release tag and push the following changes in a new commit.
+
+.. Update the `main.Version` value in `main.go`.
+
+.. Update the `version = ">= X.Y.Z"` version constraint in `README.adoc`,
+`docs/README.md`, and `example/template.pkr.hcl` to use the newly released tag,
+if semantically newer than the current tag.
