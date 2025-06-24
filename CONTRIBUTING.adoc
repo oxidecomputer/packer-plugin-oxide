@@ -1,0 +1,263 @@
+= Contributing
+
+This document contains development information. It's expected that all
+contributors read this documentation in its entirety before contributing to
+this plugin.
+
+== Requirements
+
+* https://developer.hashicorp.com/packer[Packer] - To run the plugin binary. Use
+the latest stable version of Packer.
+* https://go.dev/[Go] - To build the plugin binary. Use the version of Go specified in `go.mod`.
+
+== Building the Plugin
+
+There are two make targets to build the plugin.
+
+. `make dev` will build the plugin binary as `packer-plugin-oxide`
+at the root of the repository and install the plugin binary into
+the local Packer plugins directory using `packer plugins install`.
+There is no need to run `packer init` after running this make
+target. Simply run `packer build` with the desired template. See
+https://github.com/hashicorp/packer-plugin-scaffolding/issues/92#issuecomment-2881301902[hashicorp/packer-plugin-scaffolding#92 (comment)]
+for more information on how Packer loads development plugin binaries.
+
+. `make build` will build the plugin binary as `packer-plugin-oxide` at the root
+of the repository.
+
+== Creating a Component
+
+A Packer plugin must contain one or more components. Valid components are
+https://developer.hashicorp.com/packer/docs/plugins/creation/custom-builders[builders],
+https://developer.hashicorp.com/packer/docs/plugins/creation/custom-datasources[data sources],
+https://developer.hashicorp.com/packer/docs/plugins/creation/custom-post-processors[post-processors], and
+https://developer.hashicorp.com/packer/docs/plugins/creation/custom-provisioners[provisioners].
+
+This Packer plugin structures components as Go packages using the
+`components/COMPONENT/NAME` naming convention.
+
+[source,txt]
+----
+.
+└── component
+    ├── builder
+    │   └── instance
+    └── data-source
+        └── image
+----
+
+Once you've decided on a component go ahead and create its Go package.
+
+[source,sh]
+----
+mkdir -p component/builder/instance
+----
+
+Then implement interface for the component.
+
+`component/builder/instance/builder.go`
+[source,go]
+----
+package instance
+
+import (
+        "context"
+        "github.com/hashicorp/hcl/v2/hcldec"
+        "github.com/hashicorp/packer-plugin-sdk/packer"
+)
+
+var _ packer.Builder = (*Builder)(nil)
+
+type Builder struct{}
+
+func (b *Builder) ConfigSpec() hcldec.ObjectSpec {}
+
+func (b *Builder) Prepare(args ...any) ([]string, []string, error) {}
+
+func (b *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (packer.Artifact, error) {}
+----
+
+=== Registering a Component
+
+Components must be registered within the Packer plugin before they can be used.
+
+Register a component with a specific name.
+
+`main.go`
+[source,go]
+----
+pluginSet.RegisterBuilder("instance", new(instance.Builder))
+----
+
+Do not use `plugin.DEFAULT_NAME` to register a component.
+
+`main.go`
+[source,go]
+----
+pluginSet.RegisterBuilder(plugin.DEFAULT_NAME, new(instance.Builder))
+----
+
+//go:generate packer-sdc mapstructure-to-hcl2 -type Config
+
+=== Generating Component Code
+
+Structs within a component can be configured to generate code to retrieve its
+`hcldec.ObjectSpec` using `mapstructure` field tags.
+
+[source,go]
+----
+type Config struct {
+	Name string `mapstructure:"name" required:"true"`
+}
+----
+
+With the struct tags in place, add the following `go:generate` directive to the
+top of the file, below the license text but above the package declaration.
+
+[source,go]
+----
+//go:generate packer-sdc mapstructure-to-hcl2 -type Config
+----
+
+Then run `make generate` to generate the necessary `*.hcl2spec.go` files.
+
+== Describing the Plugin
+
+The plugin binary is not meant to be executed directly. However, there's a
+`describe` subcommand that can be used to gather information.
+
+[source,sh]
+----
+> ./packer-plugin-oxide describe
+{
+  "version": "0.1.0-dev",
+  "sdk_version": "0.6.1",
+  "api_version": "x5.0",
+  "builders": [
+    "instance"
+  ],
+  "post_processors": [],
+  "provisioners": [],
+  "datasources": [
+    "image"
+  ],
+  "protocol_version": "v2"
+}
+----
+
+== Writing Documentation 
+
+Documentation for the plugin and its components is generated from the markdown
+files located in `docs`.
+
+[source,sh]
+----
+.
+└── docs
+    ├── builders
+    │   └── instance.mdx
+    ├── datasources
+    │   └── image.mdx
+    └── README.md
+----
+
+The `docs/README.md` file is the main documentation for the plugin that will
+be displayed on its Packer integrations page. Nested directories document each
+component.
+
+Within a markdown file, you might see an `@include` directive. This directive
+will pull in content from documentation partials.
+
+[source,txt]
+----
+@include 'component/builder/instance/Builder.mdx'
+----
+
+Documentation partials are generated from Go doc comments on exported types.
+The most important exported types to document are the types that implement
+component interfaces and the `Config` type, if any.
+
+Add the following `go:generate` directive at the top of any file with exported
+types that need to be documented, below the license text but above the package
+declaration.
+
+[source,go]
+----
+//go:generate packer-sdc struct-markdown
+----
+
+Then run `make generate` to generate both the `doc-partials` and `.web-docs`
+content.
+
+[source,sh]
+----
+.
+├── docs-partials
+│   └── component
+│       ├── builder
+│       │   └── instance
+│       │       ├── Builder.mdx
+│       │       ├── Config.mdx
+│       │       ├── Config-not-required.mdx
+│       │       └── Config-required.mdx
+│       └── data-source
+│           └── image
+│               ├── Config.mdx
+│               ├── Config-not-required.mdx
+│               ├── Config-required.mdx
+│               ├── Datasource.mdx
+│               └── DatasourceOutput.mdx
+└── .web-docs
+    ├── components
+    │   ├── builder
+    │   │   └── instance
+    │   │       └── README.md
+    │   └── data-source
+    │       └── image
+    │           └── README.md
+    ├── metadata.hcl
+    ├── README.md
+    └── scripts
+        └── compile-to-webdocs.sh
+----
+
+The `.web-docs` directory contains the documentation that will be shown on the
+Packer integrations page for this plugin. You'll notice its structure matches
+the structure of `docs`. The `metadata.hcl` file within describes the plugin and
+must be updated when components are added or removed.
+
+=== Documenting Data Source Outputs
+
+The output type for a data source component must be named
+`DatasourceOutput` to ensure its documentation partial is
+correctly generated. This is because the Packer plugin SDK
+treats a typed named `DatasourceOutput` specially as seen in the
+https://github.com/hashicorp/packer-plugin-sdk/blob/7a5a8ab49a63aab6ecd6c54ba71c8e0edb531cf8/cmd/packer-sdc/internal/struct-markdown/struct_markdown.go#L183-L186[source code].
+
+== Running Tests
+
+There are two make targets to run tests for the plugin.
+
+. `make test` will run unit tests.
+
+. `make testacc` will run the acceptance tests. These tests require access to
+Oxide and will generally require other `OXIDE_*` make variables. The tests will
+log which variables are required and document which resources are dependencies.
+
+=== Releasing the Plugin
+
+. Choose the commit that's to be released.
+
+. Create a Git tag in the format `vMAJOR.MINOR.PATCH`. This tag should match the
+value of `main.Version` for the commit that was chosen.
+
+. Push the Git tag to the remote.
+
+. Monitor the `Release` GitHub Actions workflow to ensure the plugin has been
+successfully built and released.
+
+. Update the release notes for the release.
+
+. Checkout the release tag and update the `main.Version` value in `main.go` and
+push a commit. This can be skipped for patch releases that aren't released from
+the default branch.

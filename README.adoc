@@ -52,3 +52,7 @@ documentation.
 
 The documentation within link:docs[`docs`] describes the full list of available
 features for this plugin.
+
+== Contributing
+
+Read link:CONTRIBUTING.adoc[`CONTRIBUTING.adoc`] for development information.
