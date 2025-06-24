@@ -70,7 +70,7 @@ jobs:
         id: plugin_describe
         run: echo "api_version=$(go run . describe | jq -r '.api_version')" >> $GITHUB_OUTPUT
 
-      # TODO: Configure signing.
+      # TODO: https://github.com/oxidecomputer/packer-plugin-oxide/issues/26
       # - name: Import GPG key
       #   id: import_gpg
       #   uses: crazy-max/ghaction-import-gpg@v5
@@ -86,5 +86,5 @@ jobs:
         env:
           API_VERSION: ${{ steps.plugin_describe.outputs.api_version }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # TODO: Configure signing.
+          # TODO: https://github.com/oxidecomputer/packer-plugin-oxide/issues/26
           # GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
