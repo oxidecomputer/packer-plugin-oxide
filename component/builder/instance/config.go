@@ -159,6 +159,17 @@ func (c *Config) Prepare(args ...any) ([]string, error) {
 			multiErr = packer.MultiErrorAppend(multiErr, errs...)
 		}
 
+		if c.Comm.SSHTemporaryKeyPairName == "" {
+			sshTemporaryKeyPairName, err := interpolate.Render("packer-{{timestamp}}", nil)
+			if err != nil {
+				return nil, fmt.Errorf("failed rendering default ssh temporary key pair name, this bug should be reported: %w", err)
+			}
+
+			c.Comm.SSHTemporaryKeyPairName = sshTemporaryKeyPairName
+		}
+
+		c.Comm.SSHTemporaryKeyPairType = "ed25519"
+
 		if c.Host == "" {
 			multiErr = packer.MultiErrorAppend(multiErr, errors.New("host is required"))
 		}

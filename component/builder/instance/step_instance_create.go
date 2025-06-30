@@ -66,6 +66,11 @@ func (o *stepInstanceCreate) Run(ctx context.Context, stateBag multistep.StateBa
 			SshPublicKeys: func(sshPublicKeys []string) []oxide.NameOrId {
 				res := make([]oxide.NameOrId, 0, len(sshPublicKeys))
 
+				if sshKeyIDRaw, ok := stateBag.GetOk("ssh_public_key_id"); ok {
+					sshKeyID := sshKeyIDRaw.(string)
+					res = append(res, oxide.NameOrId(sshKeyID))
+				}
+
 				for _, sshPublicKey := range sshPublicKeys {
 					res = append(res, oxide.NameOrId(sshPublicKey))
 				}

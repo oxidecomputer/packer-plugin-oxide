@@ -2,10 +2,14 @@ Type: `oxide-instance`
 
 <!-- Code generated from the comments of the Builder struct in component/builder/instance/builder.go; DO NOT EDIT MANUALLY -->
 
-This builder creates custom images on Oxide. The builder launches a temporary
-instance, connects to it using its external IP, provisions it, and then
-creates an image from the instance's boot disk. The resulting image can be
-used to launch new instances.
+The `oxide-instance` builder creates custom images for use with
+[Oxide](https://oxide.computer). The builder launches a temporary instance
+from an existing source image, connects to the instance using its external
+IP, provisions the instance, and then creates a new image from the instance's
+boot disk. The resulting image can be used to launch new instances on Oxide.
+
+The builder does not manage images. Once it creates an image, it is up to you
+to use it or delete it.
 
 <!-- End of code generated from the comments of the Builder struct in component/builder/instance/builder.go; -->
 
@@ -68,20 +72,42 @@ either be required or optional.
 <!-- End of code generated from the comments of the Config struct in component/builder/instance/config.go; -->
 
 
+## Communicator
+
+In addition to the builder configuration, a
+[`communicator`](/docs/communicators) can be configured for this builder.
+
+### SSH
+
+This builder automatically generates a temporary SSH key pair that's used to
+connect to the temporary instance unless one of the following SSH communicator
+attributes are set.
+
+- [`ssh_password`](/docs/communicators/ssh#ssh_password)
+- [`ssh_private_key_file`](/docs/communicators/ssh#ssh_private_key_file)
+- [`ssh_agent_auth`](/docs/communicators/ssh#ssh_agent_auth)
+
+The temporary SSH public key is uploaded to Oxide, injected into the emphemeral
+instance, and deleted during cleanup. The temporary SSH private key is used by
+Packer to connect to the instance.
+
+The name of the temporary SSH public key uploaded to Oxide can be set using the
+[`temporary_key_pair_name`](/docs/communicators/ssh#temporary_key_pair_name)
+attribute. Generally there's no reason to set this but it's available should it
+be necessary.
+
 ## Examples
 
-Basic build using environment variables for Oxide credentials.
+Basic build using environment variables for Oxide credentials and an
+automatically generated SSH key pair.
 
 ```hcl
 source "oxide-instance" "example" {
   project            = "oxide"
   boot_disk_image_id = "feb2c8ee-5a1d-4d66-beeb-289b860561bf"
 
-  ssh_public_keys = [
-    "529885a0-2919-463a-a588-ac48f100a165",
-  ]
-
-  ssh_username   = "ubuntu"
+  # SSH communicator attributes.
+  ssh_username = "ubuntu"
 }
 
 build {

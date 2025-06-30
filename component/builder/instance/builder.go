@@ -22,10 +22,14 @@ const BuilderID = "oxide.instance"
 
 var _ packer.Builder = (*Builder)(nil)
 
-// This builder creates custom images on Oxide. The builder launches a temporary
-// instance, connects to it using its external IP, provisions it, and then
-// creates an image from the instance's boot disk. The resulting image can be
-// used to launch new instances.
+// The `oxide-instance` builder creates custom images for use with
+// [Oxide](https://oxide.computer). The builder launches a temporary instance
+// from an existing source image, connects to the instance using its external
+// IP, provisions the instance, and then creates a new image from the instance's
+// boot disk. The resulting image can be used to launch new instances on Oxide.
+//
+// The builder does not manage images. Once it creates an image, it is up to you
+// to use it or delete it.
 type Builder struct {
 	config Config
 	runner multistep.Runner
@@ -56,7 +60,17 @@ func (b *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (pack
 		return nil, fmt.Errorf("failed creating oxide client: %w", err)
 	}
 
+	// Only generate a temporary SSH key pair if the user has not configured SSH.
+	genTempSSHKeyPair := b.config.Comm.SSHPassword == "" &&
+		b.config.Comm.SSHPrivateKeyFile == "" &&
+		!b.config.Comm.SSHAgentAuth
+
 	steps := []multistep.Step{
+		multistep.If(genTempSSHKeyPair, &communicator.StepSSHKeyGen{
+			CommConf:            &b.config.Comm,
+			SSHTemporaryKeyPair: b.config.Comm.SSH.SSHTemporaryKeyPair,
+		}),
+		multistep.If(genTempSSHKeyPair, &stepSSHKeyCreate{}),
 		&stepInstanceCreate{},
 		&stepInstanceExternalIPList{},
 		&communicator.StepConnect{
