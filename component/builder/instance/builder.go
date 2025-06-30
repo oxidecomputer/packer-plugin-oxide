@@ -56,7 +56,15 @@ func (b *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (pack
 		return nil, fmt.Errorf("failed creating oxide client: %w", err)
 	}
 
+	genTempKeyPair := len(b.config.SSHPublicKeys) == 0 ||
+		(b.config.Comm.SSHPrivateKeyFile == "" && !b.config.Comm.SSHAgentAuth)
+
 	steps := []multistep.Step{
+		multistep.If(genTempKeyPair, &communicator.StepSSHKeyGen{
+			CommConf:            &b.config.Comm,
+			SSHTemporaryKeyPair: b.config.Comm.SSH.SSHTemporaryKeyPair,
+		}),
+		multistep.If(genTempKeyPair, &stepSSHKeyCreate{}),
 		&stepInstanceCreate{},
 		&stepInstanceExternalIPList{},
 		&communicator.StepConnect{
