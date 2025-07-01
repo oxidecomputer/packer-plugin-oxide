@@ -15,8 +15,12 @@ source "oxide-instance" "example" {
   project            = "packer-acc-test"
   boot_disk_image_id = data.oxide-image.ubuntu.image_id
 
-  # To build the image without connecting to it during tests.
+  # Do not wait for SSH to connect. Useful in automated tests.
   communicator = "none"
+
+  # Wait for SSH to connect. Useful in manual tests.
+  # communicator = "ssh"
+  # ssh_username = "ubuntu"
 }
 
 build {
