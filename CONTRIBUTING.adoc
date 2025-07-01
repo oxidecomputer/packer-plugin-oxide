@@ -89,13 +89,9 @@ Register a component with a specific name.
 pluginSet.RegisterBuilder("instance", new(instance.Builder))
 ----
 
-Do not use `plugin.DEFAULT_NAME` to register a component.
-
-`main.go`
-[source,go]
-----
-pluginSet.RegisterBuilder(plugin.DEFAULT_NAME, new(instance.Builder))
-----
+Do not use `plugin.DEFAULT_NAME` to register a component. Doing so will use
+the name `oxide` for the component which is not descriptive enough to describe
+the component.
 
 //go:generate packer-sdc mapstructure-to-hcl2 -type Config
 
@@ -124,7 +120,8 @@ Then run `make generate` to generate the necessary `*.hcl2spec.go` files.
 == Describing the Plugin
 
 The plugin binary is not meant to be executed directly. However, there's a
-`describe` subcommand that can be used to gather information.
+`describe` subcommand that can be used to gather information that's useful
+during troubleshooting.
 
 [source,sh]
 ----

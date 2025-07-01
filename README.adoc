@@ -2,7 +2,7 @@
 
 The https://oxide.computer[Oxide] multi-component plugin can be used with
 HashiCorp (IBM) Packer to create custom Oxide images. The documentation within
-link:docs[`docs`] describes the full list of available features for this plugin.
+link:.web-docs[`.web-docs`] describes the plugin and its components.
 
 == Installation
 
@@ -50,8 +50,8 @@ documentation.
 
 == Configuration
 
-The documentation within link:docs[`docs`] describes the full list of available
-features for this plugin.
+The documentation within link:.web-docs[`.web-docs`] describes the plugin and
+its components.
 
 == Contributing
 
