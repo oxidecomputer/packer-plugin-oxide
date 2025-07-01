@@ -17,7 +17,7 @@ packer {
   required_plugins {
     oxide = {
       source  = "github.com/oxidecomputer/oxide"
-      version = ">= 0.1.0"
+      version = ">= 0.2.0"
     }
   }
 }
