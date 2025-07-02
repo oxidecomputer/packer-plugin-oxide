@@ -87,6 +87,9 @@ func (o *stepInstanceCreate) Run(ctx context.Context, stateBag multistep.StateBa
 
 	ui.Sayf("Created Oxide instance: %s", instance.Id)
 
+	stateBag.Put("instance_id", instance.Id)
+	stateBag.Put("boot_disk_id", instance.BootDiskId)
+
 	ui.Sayf("Waiting for Oxide instance to start: Currently %s.", instance.RunState)
 
 	startCtx, startCtxCancel := context.WithTimeout(ctx, 30*time.Second)
@@ -117,9 +120,6 @@ func (o *stepInstanceCreate) Run(ctx context.Context, stateBag multistep.StateBa
 		ui.Say(fmt.Sprintf("Waiting for Oxide instance to start: Currently %s.", instance.RunState))
 		time.Sleep(3 * time.Second)
 	}
-
-	stateBag.Put("instance_id", instance.Id)
-	stateBag.Put("boot_disk_id", instance.BootDiskId)
 
 	return multistep.ActionContinue
 }
