@@ -4,7 +4,11 @@
 
 package instance
 
-import "github.com/hashicorp/packer-plugin-sdk/packer"
+import (
+	"fmt"
+
+	"github.com/hashicorp/packer-plugin-sdk/packer"
+)
 
 var _ packer.Artifact = (*Artifact)(nil)
 
@@ -36,7 +40,7 @@ func (a *Artifact) Id() string {
 
 // String returns a description of the artifact.
 func (a *Artifact) String() string {
-	return a.ImageName
+	return fmt.Sprintf("%s (%s)", a.ImageName, a.ImageID)
 }
 
 // State returns builder state related to the artifact.
