@@ -97,6 +97,13 @@ func (b *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (pack
 		return nil, err.(error)
 	}
 
+	_, hasImageID := stateBag.GetOk("image_id")
+	_, hasImageName := stateBag.GetOk("image_name")
+	if !hasImageID || !hasImageName {
+		ui.Say("No image_id or image_name. Skipping artifact creation.")
+		return nil, nil
+	}
+
 	artifact := &Artifact{
 		ImageID:   stateBag.Get("image_id").(string),
 		ImageName: stateBag.Get("image_name").(string),
