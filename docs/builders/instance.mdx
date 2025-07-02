@@ -1,9 +1,10 @@
 ---
 description: >
-  This builder creates custom images on Oxide. The builder launches a temporary
-  instance, connects to it using its external IP, provisions it, and then
-  creates an image from the instance's boot disk. The resulting image can be
-  used to launch new instances.
+  The oxide-instance builder creates custom images for use with Oxide. The builder
+  launches a temporary instance from an existing source image, connects to the
+  instance using its external IP, provisions the instance, and then creates a new
+  image from the instance's boot disk. The resulting image can be used to launch
+  new instances on Oxide.
 page_title: Oxide Instance - Builder
 nav_title: oxide-instance
 ---
@@ -28,12 +29,11 @@ Type: `oxide-instance`
 
 ## Communicator
 
-In addition to the builder configuration, a
-[`communicator`](/docs/communicators) can be configured for this builder.
+A [`communicator`](/docs/communicators) can be configured for the builder.
 
 ### SSH
 
-This builder automatically generates a temporary SSH key pair that's used to
+The builder automatically generates a temporary SSH key pair that's used to
 connect to the temporary instance unless one of the following SSH communicator
 attributes are set.
 
@@ -50,17 +50,66 @@ The name of the temporary SSH public key uploaded to Oxide can be set using the
 attribute. Generally there's no reason to set this but it's available should it
 be necessary.
 
+## Provisioner
+
+A [`provisioner`](/docs/provisioners) can be configured for the builder.
+
+### File System Consistency
+
+In [oxidecomputer/packer-plugin-oxide#33](https://github.com/oxidecomputer/packer-plugin-oxide/issues/33) 
+it was reported that images built by the builder were missing files uploaded
+during provisioning. To prevent missing files add a provisioner that forces the
+instance to flush any buffered data to its storage devices. This provisioner
+must be defined after all other provisioners that modify the file system.
+
+A provisioner that reboots the instance will work. Packer will attempt to
+connect to the instance once it's back up.
+
+```hcl
+# Linux. 
+provisioner "shell" {
+  # Required so Packer doesn't error when the SSH connection terminates.
+  expect_disconnect = true
+  inline = [
+    "sudo reboot",
+  ]
+}
+
+# Windows.
+provisioner "windows-restart" {}
+```
+
+A provisioner that explictly forces a file synchronize will work.
+
+```hcl
+# Linux. 
+provisioner "shell" {
+  inline = [
+    "sudo sync",
+  ]
+}
+
+# Windows.
+provisioner "powershell" {
+  inline = [
+    "Get-Volume | Write-VolumeCache"
+  ]
+}
+```
+
 ## Examples
 
-Basic build using environment variables for Oxide credentials and an
-automatically generated SSH key pair.
+This example uses environment variables for Oxide credentials and uses
+the automatically generated SSH key pair to connect to the instance for
+provisioning. The provisioners shown demonstrate common patterns when working
+with the builder.
 
 ```hcl
 source "oxide-instance" "example" {
-  project            = "oxide"
+  project            = "packer-acc-test"
   boot_disk_image_id = "feb2c8ee-5a1d-4d66-beeb-289b860561bf"
 
-  # SSH communicator attributes.
+  # SSH communicator configuration.
   ssh_username = "ubuntu"
 }
 
@@ -71,7 +120,36 @@ build {
 
   provisioner "shell" {
     inline = [
-      "echo 'Hello from Packer!'",
+      "sudo apt-get update",
+      "sudo apt-get install -y ca-certificates",
+    ]
+  }
+
+  # Packer recommends using a 2-step workflow for uploading files.
+
+  # 1) Upload the file to a location the provisioning user has access to.
+  provisioner "file" {
+    content     = "Hello from Packer!"
+    destination = "/tmp/hello.txt"
+  }
+
+  # 2) Use the shell provisioner to move the files and set permissions.
+  provisioner "shell" {
+    expect_disconnect = true
+    inline = [
+      "sudo cp /tmp/hello.txt /opt/hello.txt",
+      "sudo chmod 0644 /opt/hello.txt",
+    ]
+  }
+
+  # Reboot the instance to flush any buffered data to its storage devices.
+  #
+  # https://github.com/oxidecomputer/packer-plugin-oxide/issues/33
+  provisioner "shell" {
+    # Required so Packer doesn't error when the SSH connection terminates.
+    expect_disconnect = true
+    inline = [
+      "sudo reboot",
     ]
   }
 }
