@@ -15,10 +15,10 @@ source "oxide-instance" "example" {
   project            = "packer-acc-test"
   boot_disk_image_id = data.oxide-image.ubuntu.image_id
 
-  # Do not wait for SSH to connect. Useful in automated tests.
+  # Do not connect to the temporary instance.
   communicator = "none"
 
-  # Wait for SSH to connect. Useful in manual tests.
+  # Connect to the temporary instance using SSH.
   # communicator = "ssh"
   # ssh_username = "ubuntu"
 }
