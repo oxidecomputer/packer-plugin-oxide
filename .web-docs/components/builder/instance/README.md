@@ -180,7 +180,6 @@ build {
 
   # 2) Use the shell provisioner to move the files and set permissions.
   provisioner "shell" {
-    expect_disconnect = true
     inline = [
       "sudo cp /tmp/hello.txt /opt/hello.txt",
       "sudo chmod 0644 /opt/hello.txt",
