@@ -6,7 +6,7 @@ for users.
 
 == Usage
 
-Export your Oxide credentials environment variables.
+Export your Oxide credentials as environment variables.
 
 [source,sh]
 ----

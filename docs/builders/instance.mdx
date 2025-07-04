@@ -41,7 +41,7 @@ arguments are set.
 - [`ssh_private_key_file`](/docs/communicators/ssh#ssh_private_key_file)
 - [`ssh_agent_auth`](/docs/communicators/ssh#ssh_agent_auth)
 
-The temporary SSH public key is uploaded to Oxide, injected into the emphemeral
+The temporary SSH public key is uploaded to Oxide, injected into the ephemeral
 instance, and deleted during cleanup. The temporary SSH private key is used by
 Packer to connect to the instance.
 
@@ -79,7 +79,7 @@ provisioner "shell" {
 provisioner "windows-restart" {}
 ```
 
-A provisioner that explictly forces a file synchronize will work.
+A provisioner that explicitly forces a file synchronize will work.
 
 ```hcl
 # Linux. 

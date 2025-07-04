@@ -42,7 +42,7 @@ documentation.
 === Build from Source
 
 Clone the GitHub repository locally and run `make build` to build
-the plugin for your target platform. Upon successful compliation,
+the plugin for your target platform. Upon successful compilation,
 a `packer-plugin-oxide` plugin binary can be found in the root
 of this repository. Install the plugin binary by following the
 https://developer.hashicorp.com/packer/docs/plugins/install[Installing Plugins]
