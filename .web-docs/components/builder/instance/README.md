@@ -40,6 +40,8 @@ or optional.
 - `project` (string) - Name or ID of the project where the temporary instance and resulting image
   will be created.
 
+- `artifact_os` (string) - Operating system of the resulting image artifact.
+
 <!-- End of code generated from the comments of the Config struct in component/builder/instance/config.go; -->
 
 
@@ -69,6 +71,8 @@ or optional.
 
 - `artifact_name` (string) - Name of the resulting image artifact. Defaults to `packer-{{timestamp}}`.
 
+- `artifact_version` (string) - Version of the resulting image artifact. Defaults to `packer-{{timestamp}}`.
+
 <!-- End of code generated from the comments of the Config struct in component/builder/instance/config.go; -->
 
 
@@ -80,7 +84,7 @@ A [`communicator`](/docs/communicators) can be configured for the builder.
 
 The builder automatically generates a temporary SSH key pair that's used to
 connect to the temporary instance unless one of the following SSH communicator
-attributes are set.
+arguments are set.
 
 - [`ssh_password`](/docs/communicators/ssh#ssh_password)
 - [`ssh_private_key_file`](/docs/communicators/ssh#ssh_private_key_file)
@@ -92,7 +96,7 @@ Packer to connect to the instance.
 
 The name of the temporary SSH public key uploaded to Oxide can be set using the
 [`temporary_key_pair_name`](/docs/communicators/ssh#temporary_key_pair_name)
-attribute. Generally there's no reason to set this but it's available should it
+argument. Generally there's no reason to set this but it's available should it
 be necessary.
 
 ## Provisioner
@@ -153,6 +157,7 @@ with the builder.
 source "oxide-instance" "example" {
   project            = "packer-acc-test"
   boot_disk_image_id = "feb2c8ee-5a1d-4d66-beeb-289b860561bf"
+  artifact_os        = "ubuntu"
 
   # SSH communicator configuration.
   ssh_username = "ubuntu"

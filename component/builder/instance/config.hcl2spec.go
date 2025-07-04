@@ -81,6 +81,8 @@ type FlatConfig struct {
 	Memory                    *uint64           `mapstructure:"memory" cty:"memory" hcl:"memory"`
 	SSHPublicKeys             []string          `mapstructure:"ssh_public_keys" cty:"ssh_public_keys" hcl:"ssh_public_keys"`
 	ArtifactName              *string           `mapstructure:"artifact_name" cty:"artifact_name" hcl:"artifact_name"`
+	ArtifactOS                *string           `mapstructure:"artifact_os" required:"true" cty:"artifact_os" hcl:"artifact_os"`
+	ArtifactVersion           *string           `mapstructure:"artifact_version" cty:"artifact_version" hcl:"artifact_version"`
 }
 
 // FlatMapstructure returns a new FlatConfig.
@@ -166,6 +168,8 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 		"memory":                       &hcldec.AttrSpec{Name: "memory", Type: cty.Number, Required: false},
 		"ssh_public_keys":              &hcldec.AttrSpec{Name: "ssh_public_keys", Type: cty.List(cty.String), Required: false},
 		"artifact_name":                &hcldec.AttrSpec{Name: "artifact_name", Type: cty.String, Required: false},
+		"artifact_os":                  &hcldec.AttrSpec{Name: "artifact_os", Type: cty.String, Required: false},
+		"artifact_version":             &hcldec.AttrSpec{Name: "artifact_version", Type: cty.String, Required: false},
 	}
 	return s
 }

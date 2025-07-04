@@ -77,6 +77,12 @@ type Config struct {
 	// Name of the resulting image artifact. Defaults to `packer-{{timestamp}}`.
 	ArtifactName string `mapstructure:"artifact_name"`
 
+	// Operating system of the resulting image artifact.
+	ArtifactOS string `mapstructure:"artifact_os" required:"true"`
+
+	// Version of the resulting image artifact. Defaults to `packer-{{timestamp}}`.
+	ArtifactVersion string `mapstructure:"artifact_version"`
+
 	ctx interpolate.Context
 }
 
@@ -128,6 +134,15 @@ func (c *Config) Prepare(args ...any) ([]string, error) {
 			}
 
 			c.ArtifactName = artifactName
+		}
+
+		if c.ArtifactVersion == "" {
+			artifactVersion, err := interpolate.Render("packer-{{timestamp}}", nil)
+			if err != nil {
+				return nil, fmt.Errorf("failed rendering default artifact version, this bug should be reported: %w", err)
+			}
+
+			c.ArtifactVersion = artifactVersion
 		}
 
 		if c.CPUs == 0 {
@@ -184,6 +199,10 @@ func (c *Config) Prepare(args ...any) ([]string, error) {
 
 		if c.BootDiskImageID == "" {
 			multiErr = packer.MultiErrorAppend(multiErr, errors.New("boot_disk_image_id is required"))
+		}
+
+		if c.ArtifactOS == "" {
+			multiErr = packer.MultiErrorAppend(multiErr, errors.New("artifact_os is required"))
 		}
 
 		if multiErr != nil && len(multiErr.Errors) > 0 {
