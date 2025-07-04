@@ -22,8 +22,9 @@ import (
 
 var _ packer.Datasource = (*Datasource)(nil)
 
-// This data source fetches the image ID for an Oxide image using its name. The
-// image can be a project image or silo image.
+// The `oxide-image` data source fetches [Oxide](https://oxide.computer) image
+// information for use in a Packer build. The image can be a project image or
+// silo image.
 type Datasource struct {
 	config Config
 }

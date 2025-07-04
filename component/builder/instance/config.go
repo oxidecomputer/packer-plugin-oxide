@@ -20,8 +20,8 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
-// The configuration arguments for this builder component. Arguments can
-// either be required or optional.
+// The configuration arguments for the builder. Arguments can either be required
+// or optional.
 type Config struct {
 	common.PackerConfig `mapstructure:",squash"`
 

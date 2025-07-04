@@ -18,8 +18,8 @@ to use it or delete it.
 
 <!-- Code generated from the comments of the Config struct in component/builder/instance/config.go; DO NOT EDIT MANUALLY -->
 
-The configuration arguments for this builder component. Arguments can
-either be required or optional.
+The configuration arguments for the builder. Arguments can either be required
+or optional.
 
 <!-- End of code generated from the comments of the Config struct in component/builder/instance/config.go; -->
 

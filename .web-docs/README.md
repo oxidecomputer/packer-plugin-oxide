@@ -27,17 +27,32 @@ packer plugins install github.com/oxidecomputer/oxide
 
 ### Builders
 
-- [`instance`](/packer/integrations/oxidecomputer/oxide/latest/components/builder/instance) -
-This builder creates custom images on Oxide. The builder launches a temporary
-instance, connects to it using its external IP, provisions it, and then
-creates an image from the instance's boot disk. The resulting image can be
-used to launch new instances.
+[`oxide-instance`](/packer/integrations/oxidecomputer/oxide/latest/components/builder/instance)
+<!-- Code generated from the comments of the Builder struct in component/builder/instance/builder.go; DO NOT EDIT MANUALLY -->
+
+The `oxide-instance` builder creates custom images for use with
+[Oxide](https://oxide.computer). The builder launches a temporary instance
+from an existing source image, connects to the instance using its external
+IP, provisions the instance, and then creates a new image from the instance's
+boot disk. The resulting image can be used to launch new instances on Oxide.
+
+The builder does not manage images. Once it creates an image, it is up to you
+to use it or delete it.
+
+<!-- End of code generated from the comments of the Builder struct in component/builder/instance/builder.go; -->
+
 
 ### Data Sources
 
-- [`image`](/packer/integrations/oxidecomputer/oxide/latest/components/data-source/image) -
-This data source fetches the image ID for an Oxide image using its name. The
-image can be a project image or silo image.
+[`oxide-image`](/packer/integrations/oxidecomputer/oxide/latest/components/data-source/image)
+<!-- Code generated from the comments of the Datasource struct in component/data-source/image/data_source.go; DO NOT EDIT MANUALLY -->
+
+The `oxide-image` data source fetches [Oxide](https://oxide.computer) image
+information for use in a Packer build. The image can be a project image or
+silo image.
+
+<!-- End of code generated from the comments of the Datasource struct in component/data-source/image/data_source.go; -->
+
 
 <!-- ### Provisioners -->
 

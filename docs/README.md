@@ -27,17 +27,13 @@ packer plugins install github.com/oxidecomputer/oxide
 
 ### Builders
 
-- [`instance`](/packer/integrations/oxidecomputer/oxide/latest/components/builder/instance) -
-This builder creates custom images on Oxide. The builder launches a temporary
-instance, connects to it using its external IP, provisions it, and then
-creates an image from the instance's boot disk. The resulting image can be
-used to launch new instances.
+[`oxide-instance`](/packer/integrations/oxidecomputer/oxide/latest/components/builder/instance)
+@include 'component/builder/instance/Builder.mdx'
 
 ### Data Sources
 
-- [`image`](/packer/integrations/oxidecomputer/oxide/latest/components/data-source/image) -
-This data source fetches the image ID for an Oxide image using its name. The
-image can be a project image or silo image.
+[`oxide-image`](/packer/integrations/oxidecomputer/oxide/latest/components/data-source/image)
+@include 'component/data-source/image/Datasource.mdx'
 
 <!-- ### Provisioners -->
 
