@@ -38,7 +38,7 @@ func (s *stepSnapshotCreate) Run(ctx context.Context, stateBag multistep.StateBa
 		Project: oxide.NameOrId(config.Project),
 		Body: &oxide.SnapshotCreate{
 			Name:        oxide.Name(config.Name),
-			Description: "Managed by Packer.",
+			Description: "Created by Packer.",
 			Disk:        oxide.NameOrId(bootDiskID),
 		},
 	})

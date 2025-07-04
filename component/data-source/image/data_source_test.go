@@ -228,7 +228,7 @@ func TestAccDataSource_Image(t *testing.T) {
 						Project: oxide.NameOrId(tc.project),
 						Body: &oxide.DiskCreate{
 							Name:        oxide.Name(diskName),
-							Description: fmt.Sprintf("Packer acceptance test %s.", testID),
+							Description: fmt.Sprintf("Created by Packer acceptance test %s.", testID),
 							DiskSource: oxide.DiskSource{
 								BlockSize: 4096,
 								Type:      oxide.DiskSourceTypeBlank,
@@ -245,7 +245,7 @@ func TestAccDataSource_Image(t *testing.T) {
 						Project: oxide.NameOrId(tc.project),
 						Body: &oxide.SnapshotCreate{
 							Name:        oxide.Name(snapshotName),
-							Description: fmt.Sprintf("Packer acceptance test %s.", testID),
+							Description: fmt.Sprintf("Created by Packer acceptance test %s.", testID),
 							Disk:        oxide.NameOrId(disk.Id),
 						},
 					})
@@ -258,7 +258,7 @@ func TestAccDataSource_Image(t *testing.T) {
 						Project: oxide.NameOrId(tc.project),
 						Body: &oxide.ImageCreate{
 							Name:        oxide.Name(imageName),
-							Description: fmt.Sprintf("Packer acceptance test %s.", testID),
+							Description: fmt.Sprintf("Created by Packer acceptance test %s.", testID),
 							Os:          "Blank",
 							Version:     "0.0.0",
 							Source: oxide.ImageSource{
