@@ -17,6 +17,9 @@ source "oxide-instance" "test" {
   {{- if .ArtifactName }}
   artifact_name = "{{ .ArtifactName }}"
   {{- end }}
+  {{- if .ArtifactOS }}
+  artifact_os = "{{ .ArtifactOS }}"
+  {{- end }}
 
   # To build the image without connecting to it during tests.
   communicator = "none"

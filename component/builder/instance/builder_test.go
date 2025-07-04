@@ -25,7 +25,7 @@ import (
 var packerTemplates embed.FS
 
 // TestAccBuilder_Config tests that the builder fails when required
-// configuration attributes are not provided.
+// configuration arguments are not provided.
 func TestAccBuilder_Config(t *testing.T) {
 	if os.Getenv(acctest.TestEnvVar) == "" {
 		t.Skipf("Acceptance tests skipped unless env '%s' set", acctest.TestEnvVar)
@@ -63,6 +63,7 @@ func TestAccBuilder_Config(t *testing.T) {
 				struct {
 					Project         string
 					BootDiskImageID string
+					ArtifactOS      string
 				}{},
 			),
 			Check: func(buildCommand *exec.Cmd, logfile string) error {
@@ -76,6 +77,7 @@ func TestAccBuilder_Config(t *testing.T) {
 				assertFileContains(t, logfile, "token is required")
 				assertFileContains(t, logfile, "project is required")
 				assertFileContains(t, logfile, "boot_disk_image_id is required")
+				assertFileContains(t, logfile, "artifact_os is required")
 
 				return nil
 			},
@@ -99,9 +101,11 @@ func TestAccBuilder_Config(t *testing.T) {
 				struct {
 					Project         string
 					BootDiskImageID string
+					ArtifactOS      string
 				}{
 					Project:         "test-project",
-					BootDiskImageID: "test-image-id",
+					BootDiskImageID: "test-boot-disk-image-id",
+					ArtifactOS:      "test-artifact-os",
 				},
 			),
 			Check: func(buildCommand *exec.Cmd, logfile string) error {
@@ -136,8 +140,10 @@ func TestAccBuilder_Config(t *testing.T) {
 				struct {
 					Project         string
 					BootDiskImageID string
+					ArtifactOS      string
 				}{
-					BootDiskImageID: "test-image-id",
+					BootDiskImageID: "test-boot-disk-image-id",
+					ArtifactOS:      "test-artifact-os",
 				},
 			),
 			Check: func(buildCommand *exec.Cmd, logfile string) error {
@@ -159,10 +165,12 @@ func TestAccBuilder_Config(t *testing.T) {
 				t,
 				"config.pkr.hcl.tmpl",
 				struct {
-					BootDiskImageID string
 					Project         string
+					BootDiskImageID string
+					ArtifactOS      string
 				}{
-					Project: "test-project",
+					Project:    "test-project",
+					ArtifactOS: "test-artifact-os",
 				},
 			),
 			Check: func(buildCommand *exec.Cmd, logfile string) error {
@@ -250,6 +258,7 @@ func TestAccBuilder_Instance(t *testing.T) {
 			// fields without creating some other mechanism to share state.
 			testID := fmt.Sprintf("packer-%d", time.Now().UnixNano())
 			artifactName := fmt.Sprintf("%s-%s", testID, "artifact")
+			artifactOS := fmt.Sprintf("%s-%s", testID, "artifact-os")
 
 			var packerTemplate strings.Builder
 			if err := tmpl.ExecuteTemplate(&packerTemplate, "instance.pkr.hcl.tmpl", struct {
@@ -259,6 +268,7 @@ func TestAccBuilder_Instance(t *testing.T) {
 				Memory          uint64
 				BootDiskSize    uint64
 				ArtifactName    string
+				ArtifactOS      string
 			}{
 				Project:         tc.project,
 				BootDiskImageID: tc.bootDiskImageID,
@@ -266,6 +276,7 @@ func TestAccBuilder_Instance(t *testing.T) {
 				Memory:          tc.memory,
 				BootDiskSize:    tc.bootDiskSize,
 				ArtifactName:    artifactName,
+				ArtifactOS:      artifactOS,
 			},
 			); err != nil {
 				t.Fatalf("failed rendering packer template: %v", err)

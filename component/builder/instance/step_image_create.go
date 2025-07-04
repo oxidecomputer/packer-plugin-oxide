@@ -32,12 +32,12 @@ func (s *stepImageCreate) Run(ctx context.Context, stateBag multistep.StateBag) 
 		Body: &oxide.ImageCreate{
 			Description: "Created by Packer.",
 			Name:        oxide.Name(config.ArtifactName),
-			Os:          "Packer",
+			Os:          config.ArtifactOS,
 			Source: oxide.ImageSource{
 				Type: oxide.ImageSourceTypeSnapshot,
 				Id:   snapshotID,
 			},
-			Version: "1.0",
+			Version: config.ArtifactVersion,
 		},
 	})
 	if err != nil {

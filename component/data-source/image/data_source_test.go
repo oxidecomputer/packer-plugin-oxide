@@ -25,7 +25,7 @@ import (
 var packerTemplates embed.FS
 
 // TestAccDataSource_Config tests that the data source fails when required
-// configuration attributes are not provided.
+// configuration arguments are not provided.
 func TestAccDataSource_Config(t *testing.T) {
 	if os.Getenv(acctest.TestEnvVar) == "" {
 		t.Skipf("Acceptance tests skipped unless env '%s' set", acctest.TestEnvVar)
