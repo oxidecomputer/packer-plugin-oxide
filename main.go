@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/packer-plugin-sdk/version"
 	"github.com/oxidecomputer/packer-plugin-oxide/component/builder/instance"
 	"github.com/oxidecomputer/packer-plugin-oxide/component/data-source/image"
+	imagepromote "github.com/oxidecomputer/packer-plugin-oxide/component/post-processor/image-promote"
 )
 
 var (
@@ -32,6 +33,7 @@ func main() {
 	pluginSet := plugin.NewSet()
 	pluginSet.RegisterBuilder("instance", new(instance.Builder))
 	pluginSet.RegisterDatasource("image", new(image.Datasource))
+	pluginSet.RegisterPostProcessor("image-promote", new(imagepromote.PostProcessor))
 	pluginSet.SetVersion(
 		version.NewPluginVersion(Version, VersionPreRelease, VersionMetadata),
 	)

@@ -23,4 +23,9 @@ integration {
     name = "Oxide Image"
     slug = "oxide-image"
   }
+  component {
+    type = "post-processor"
+    name = "Oxide Image Promote"
+    slug = "oxide-image-promote"
+  }
 }
