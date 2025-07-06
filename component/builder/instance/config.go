@@ -188,7 +188,6 @@ func (c *Config) Prepare(args ...any) ([]string, error) {
 			multiErr = packer.MultiErrorAppend(multiErr, errors.New("boot_disk_image_id is required"))
 		}
 
-
 		if multiErr != nil && len(multiErr.Errors) > 0 {
 			return nil, multiErr
 		}

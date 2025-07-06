@@ -25,22 +25,22 @@ func (s *stepImageView) Run(ctx context.Context, stateBag multistep.StateBag) mu
 	ui := stateBag.Get("ui").(packer.Ui)
 	config := stateBag.Get("config").(*Config)
 
-	ui.Say("Fetching source image metadata")
+	ui.Say("Fetching Oxide image metadata")
 
 	image, err := oxideClient.ImageView(ctx, oxide.ImageViewParams{
 		Image: oxide.NameOrId(config.BootDiskImageID),
 	})
 	if err != nil {
-		ui.Error("Failed fetching source image metadata.")
+		ui.Error("Failed fetching Oxide image metadata.")
 		stateBag.Put("error", err)
 		return multistep.ActionHalt
 	}
 
-	ui.Sayf("Fetched source image: %s", image.Id)
+	ui.Sayf("Fetched Oxide image: %s", image.Id)
 
 	timestamp, err := interpolate.Render("{{timestamp}}", &config.ctx)
 	if err != nil {
-		ui.Error("Failed rendering timestamp.")
+		ui.Error("Failed rendering timestamp interpolation.")
 		stateBag.Put("error", err)
 		return multistep.ActionHalt
 	}

@@ -162,7 +162,7 @@ func TestAccBuilder_Config(t *testing.T) {
 					Project         string
 					BootDiskImageID string
 				}{
-					Project:    "test-project",
+					Project: "test-project",
 				},
 			),
 			Check: func(buildCommand *exec.Cmd, logfile string) error {
