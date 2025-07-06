@@ -74,13 +74,18 @@ type Config struct {
 	// An array of names or IDs of SSH public keys to inject into the instance.
 	SSHPublicKeys []string `mapstructure:"ssh_public_keys"`
 
-	// Name of the resulting image artifact. Defaults to `packer-{{timestamp}}`.
+	// Name of the resulting image artifact. Defaults to
+	// `SOURCE_IMAGE_NAME-{{timestamp}}` where `SOURCE_IMAGE_NAME` is the name of
+	// the source image as retrieved from Oxide.
 	ArtifactName string `mapstructure:"artifact_name"`
 
-	// Operating system of the resulting image artifact.
-	ArtifactOS string `mapstructure:"artifact_os" required:"true"`
+	// Operating system of the resulting image artifact. Defaults to the OS of the
+	// source image as retrieved from Oxide.
+	ArtifactOS string `mapstructure:"artifact_os"`
 
-	// Version of the resulting image artifact. Defaults to `packer-{{timestamp}}`.
+	// Version of the resulting image artifact. Defaults to
+	// `SOURCE_IMAGE_VERSION-{{timestamp}}` where `SOURCE_IMAGE_VERSION` is the
+	// version of the source image as retrieved from Oxide.
 	ArtifactVersion string `mapstructure:"artifact_version"`
 
 	ctx interpolate.Context
@@ -125,24 +130,6 @@ func (c *Config) Prepare(args ...any) ([]string, error) {
 			}
 
 			c.Hostname = hostname
-		}
-
-		if c.ArtifactName == "" {
-			artifactName, err := interpolate.Render("packer-{{timestamp}}", nil)
-			if err != nil {
-				return nil, fmt.Errorf("failed rendering default artifact name, this bug should be reported: %w", err)
-			}
-
-			c.ArtifactName = artifactName
-		}
-
-		if c.ArtifactVersion == "" {
-			artifactVersion, err := interpolate.Render("packer-{{timestamp}}", nil)
-			if err != nil {
-				return nil, fmt.Errorf("failed rendering default artifact version, this bug should be reported: %w", err)
-			}
-
-			c.ArtifactVersion = artifactVersion
 		}
 
 		if c.CPUs == 0 {
@@ -201,9 +188,6 @@ func (c *Config) Prepare(args ...any) ([]string, error) {
 			multiErr = packer.MultiErrorAppend(multiErr, errors.New("boot_disk_image_id is required"))
 		}
 
-		if c.ArtifactOS == "" {
-			multiErr = packer.MultiErrorAppend(multiErr, errors.New("artifact_os is required"))
-		}
 
 		if multiErr != nil && len(multiErr.Errors) > 0 {
 			return nil, multiErr

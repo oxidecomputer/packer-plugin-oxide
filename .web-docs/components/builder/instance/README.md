@@ -40,8 +40,6 @@ or optional.
 - `project` (string) - Name or ID of the project where the temporary instance and resulting image
   will be created.
 
-- `artifact_os` (string) - Operating system of the resulting image artifact.
-
 <!-- End of code generated from the comments of the Config struct in component/builder/instance/config.go; -->
 
 
@@ -69,9 +67,16 @@ or optional.
 
 - `ssh_public_keys` ([]string) - An array of names or IDs of SSH public keys to inject into the instance.
 
-- `artifact_name` (string) - Name of the resulting image artifact. Defaults to `packer-{{timestamp}}`.
+- `artifact_name` (string) - Name of the resulting image artifact. Defaults to
+  `SOURCE_IMAGE_NAME-{{timestamp}}` where `SOURCE_IMAGE_NAME` is the name of
+  the source image as retrieved from Oxide.
 
-- `artifact_version` (string) - Version of the resulting image artifact. Defaults to `packer-{{timestamp}}`.
+- `artifact_os` (string) - Operating system of the resulting image artifact. Defaults to the OS of the
+  source image as retrieved from Oxide.
+
+- `artifact_version` (string) - Version of the resulting image artifact. Defaults to
+  `SOURCE_IMAGE_VERSION-{{timestamp}}` where `SOURCE_IMAGE_VERSION` is the
+  version of the source image as retrieved from Oxide.
 
 <!-- End of code generated from the comments of the Config struct in component/builder/instance/config.go; -->
 
@@ -157,7 +162,6 @@ with the builder.
 source "oxide-instance" "example" {
   project            = "packer-acc-test"
   boot_disk_image_id = "feb2c8ee-5a1d-4d66-beeb-289b860561bf"
-  artifact_os        = "ubuntu"
 
   # SSH communicator configuration.
   ssh_username = "ubuntu"

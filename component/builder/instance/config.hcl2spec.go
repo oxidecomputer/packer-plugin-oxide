@@ -81,7 +81,7 @@ type FlatConfig struct {
 	Memory                    *uint64           `mapstructure:"memory" cty:"memory" hcl:"memory"`
 	SSHPublicKeys             []string          `mapstructure:"ssh_public_keys" cty:"ssh_public_keys" hcl:"ssh_public_keys"`
 	ArtifactName              *string           `mapstructure:"artifact_name" cty:"artifact_name" hcl:"artifact_name"`
-	ArtifactOS                *string           `mapstructure:"artifact_os" required:"true" cty:"artifact_os" hcl:"artifact_os"`
+	ArtifactOS                *string           `mapstructure:"artifact_os" cty:"artifact_os" hcl:"artifact_os"`
 	ArtifactVersion           *string           `mapstructure:"artifact_version" cty:"artifact_version" hcl:"artifact_version"`
 }
 

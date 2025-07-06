@@ -66,6 +66,7 @@ func (b *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (pack
 		!b.config.Comm.SSHAgentAuth
 
 	steps := []multistep.Step{
+		&stepImageView{},
 		multistep.If(genTempSSHKeyPair, &communicator.StepSSHKeyGen{
 			CommConf:            &b.config.Comm,
 			SSHTemporaryKeyPair: b.config.Comm.SSH.SSHTemporaryKeyPair,
