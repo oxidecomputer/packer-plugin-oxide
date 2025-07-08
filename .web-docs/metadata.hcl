@@ -16,11 +16,11 @@ integration {
   component {
     type = "builder"
     name = "Oxide Instance"
-    slug = "oxide-instance"
+    slug = "instance"
   }
   component {
     type = "data-source"
     name = "Oxide Image"
-    slug = "oxide-image"
+    slug = "image"
   }
 }
