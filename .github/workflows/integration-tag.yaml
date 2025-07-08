@@ -1,0 +1,69 @@
+---
+name: HashiCorp Integration Release (Tag)
+
+on:
+  push:
+    tags:
+      - "*.*.*"
+
+permissions:
+  contents: read
+
+jobs:
+  parse-version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.parse.outputs.version }}
+    steps:
+      - name: Parse Version
+        id: parse
+        env:
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          echo "version=$(echo "$REF_NAME" | sed -E 's/v?([0-9]+\.[0-9]+\.[0-9]+)/\1/')" >> "$GITHUB_OUTPUT"
+
+  notify-release:
+    runs-on: ubuntu-latest
+    needs:
+      - parse-version
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+
+      - name: Install Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: "go.mod"
+
+      - name: Generate Documentation
+        shell: bash
+        run: make generate
+
+      - name: Check for Outdated Documentation
+        shell: bash
+        run: |
+          if [[ -z "$(git status -s)" ]]; then
+            echo "Documentation is up to date!"
+          else
+            echo "Documentation updates not committed!"
+            echo "Run 'make generate' and commit the result to resolve this error."
+            exit 1
+          fi
+
+      - name: Checkout hashicorp/integration-release-action
+        uses: actions/checkout@v4
+        with:
+          repository: hashicorp/integration-release-action
+          path: ./integration-release-action
+          fetch-depth: 0
+
+      - name: Notify Release
+        uses: ./integration-release-action
+        with:
+          integration_identifier: "packer/oxidecomputer/oxide"
+          release_version: ${{ needs.parse-version.outputs.version }}
+          release_sha: ${{ github.ref }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
