@@ -1,0 +1,61 @@
+---
+name: HashiCorp Integration Release (Manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version in semantic versioning format (e.g., X.Y.Z)."
+        required: true
+      revision:
+        description: "Source control revision to use for release notification."
+        default: main
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  notify-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.revision }}
+          fetch-depth: 0
+
+      - name: Install Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: "go.mod"
+
+      - name: Generate Documentation
+        shell: bash
+        run: make generate
+
+      - name: Check for Outdated Documentation
+        shell: bash
+        run: |
+          if [[ -z "$(git status -s)" ]]; then
+            echo "Documentation is up to date!"
+          else
+            echo "Documentation updates not committed!"
+            echo "Run 'make generate' and commit the result to resolve this error."
+            exit 1
+          fi
+
+      - name: Checkout hashicorp/integration-release-action
+        uses: actions/checkout@v4
+        with:
+          repository: hashicorp/integration-release-action
+          path: ./integration-release-action
+          fetch-depth: 0
+
+      - name: Notify Release
+        uses: ./integration-release-action
+        with:
+          integration_identifier: "packer/oxidecomputer/oxide"
+          release_version: ${{ github.event.inputs.version }}
+          release_sha: ${{ github.event.inputs.revision }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
