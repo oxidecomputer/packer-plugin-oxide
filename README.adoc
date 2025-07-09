@@ -1,8 +1,9 @@
 = Packer Plugin Oxide
 
-The https://oxide.computer[Oxide] multi-component plugin can be used with
-HashiCorp (IBM) Packer to create custom Oxide images. The documentation within
-link:.web-docs[`.web-docs`] describes the plugin and its components.
+The https://oxide.computer[Oxide] multi-component plugin can be
+used with HashiCorp (IBM) Packer to create custom Oxide images. The
+https://developer.hashicorp.com/packer/integrations/oxidecomputer/oxide[documentation]
+describes the plugin and its components.
 
 == Installation
 
@@ -50,8 +51,10 @@ documentation.
 
 == Configuration
 
-The documentation within link:.web-docs[`.web-docs`] describes the plugin and
-its components.
+The https://developer.hashicorp.com/packer/integrations/oxidecomputer/oxide[documentation]
+describes the plugin and its components. The documentation is populated from
+the content in link:.web-docs[`.web-docs`] which is rendered from the raw
+documentation in link:docs[`docs`].
 
 == Contributing
 

@@ -1,7 +1,7 @@
 # See https://github.com/hashicorp/integration-template for schema.
 integration {
   name        = "Oxide"
-  description = "The Oxide Packer plugin is a multi-component plugin for building Oxide images."
+  description = "The Oxide multi-component plugin can be used with HashiCorp (IBM) Packer to create custom Oxide images."
   identifier  = "packer/oxidecomputer/oxide"
   flags       = []
   docs {
