@@ -9,27 +9,8 @@ describes the plugin and its components.
 
 === Install Using Packer
 
-To install this plugin, add the following to your Packer configuration and run
-`packer init`.
-
-[source,hcl]
-----
-packer {
-  required_plugins {
-    oxide = {
-      source  = "github.com/oxidecomputer/oxide"
-      version = ">= 0.3.0"
-    }
-  }
-}
-----
-
-Alternatively, use `packer plugins install` to install this plugin.
-
-[source,sh]
-----
-packer plugins install github.com/oxidecomputer/oxide
-----
+Refer to the installation instructions in the
+https://developer.hashicorp.com/packer/integrations/oxidecomputer/oxide[documentation].
 
 === Manual Installation
 
@@ -49,12 +30,14 @@ of this repository. Install the plugin binary by following the
 https://developer.hashicorp.com/packer/docs/plugins/install[Installing Plugins]
 documentation.
 
-== Configuration
+== Usage
 
-The https://developer.hashicorp.com/packer/integrations/oxidecomputer/oxide[documentation]
-describes the plugin and its components. The documentation is populated from
-the content in link:.web-docs[`.web-docs`] which is rendered from the raw
-documentation in link:docs[`docs`].
+Refer to the example configuration in link:example[`example`] or the 
+https://developer.hashicorp.com/packer/integrations/oxidecomputer/oxide[documentation]
+for usage information.
+
+The documentation is populated from the content in link:.web-docs[`.web-docs`]
+which is rendered from the raw documentation in link:docs[`docs`].
 
 == Contributing
 
