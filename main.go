@@ -17,7 +17,7 @@ import (
 var (
 	// Version is the MAJOR.MINOR.PATCH version of this plugin following semantic
 	// versioning rules. Maintainers must update this as they develop this plugin.
-	Version = "0.3.0"
+	Version = "0.4.0"
 
 	// VersionPreRelease is the pre-release identifier for the version. This is
 	// generally modified via ldflags to create both release and pre-release builds.
