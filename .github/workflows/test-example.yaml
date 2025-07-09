@@ -13,6 +13,9 @@ on:
         required: false
         default: "./example"
 
+permissions:
+  contents: read
+
 jobs:
   packer:
     runs-on: ubuntu-latest
