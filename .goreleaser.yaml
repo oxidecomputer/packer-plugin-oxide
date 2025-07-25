@@ -53,7 +53,7 @@ archives:
 checksum:
   name_template: '{{ .ProjectName }}_v{{ .Version }}_SHA256SUMS'
   algorithm: sha256
-# TODO: Configure signing.
+# TODO: https://github.com/oxidecomputer/packer-plugin-oxide/issues/26
 # signs:
 #   - artifacts: checksum
 #     args:
