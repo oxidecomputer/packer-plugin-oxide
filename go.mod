@@ -1,6 +1,6 @@
 module github.com/oxidecomputer/packer-plugin-oxide
 
-go 1.24.3
+go 1.24.5
 
 require (
 	github.com/hashicorp/hcl/v2 v2.19.1
