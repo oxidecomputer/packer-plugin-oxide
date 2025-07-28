@@ -146,7 +146,7 @@ provisioner "shell" {
 # Windows.
 provisioner "powershell" {
   inline = [
-    "Get-Volume | Write-VolumeCache"
+    "Get-Volume | Write-VolumeCache",
   ]
 }
 ```

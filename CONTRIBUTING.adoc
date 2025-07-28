@@ -53,7 +53,7 @@ Once you've decided on a component go ahead and create its Go package.
 mkdir -p component/builder/instance
 ----
 
-Then implement interface for the component.
+Then implement the interface for the component.
 
 `component/builder/instance/builder.go`
 [source,go]
@@ -144,7 +144,7 @@ during troubleshooting.
 
 == Writing Documentation 
 
-Documentation for the plugin and its components is generated from the markdown
+Documentation for the plugin and its components is generated from the Markdown
 files located in `docs`.
 
 [source,sh]
@@ -162,7 +162,7 @@ The `docs/README.md` file is the main documentation for the plugin that will
 be displayed on its Packer integrations page. Nested directories document each
 component.
 
-Within a markdown file, you might see an `@include` directive. This directive
+Within a Markdown file, you might see an `@include` directive. This directive
 will pull in content from documentation partials.
 
 [source,txt]
@@ -225,10 +225,10 @@ must be updated when components are added or removed.
 
 === Documenting Data Source Outputs
 
-The output type for a data source component must be named
-`DatasourceOutput` to ensure its documentation partial is
-correctly generated. This is because the Packer plugin SDK
-treats a typed named `DatasourceOutput` specially as seen in the
+The output type for a data source component must be named `DatasourceOutput`
+to ensure its documentation partial is correctly generated. This is because
+the Packer plugin SDK treats a type named `DatasourceOutput` specially as seen
+in the
 https://github.com/hashicorp/packer-plugin-sdk/blob/7a5a8ab49a63aab6ecd6c54ba71c8e0edb531cf8/cmd/packer-sdc/internal/struct-markdown/struct_markdown.go#L183-L186[source code].
 
 == Running Tests
