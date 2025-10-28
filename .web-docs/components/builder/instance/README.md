@@ -28,12 +28,6 @@ or optional.
 
 <!-- Code generated from the comments of the Config struct in component/builder/instance/config.go; DO NOT EDIT MANUALLY -->
 
-- `host` (string) - Oxide API URL (e.g., `https://oxide.sys.example.com`). If not specified, this
-  defaults to the value of the `OXIDE_HOST` environment variable.
-
-- `token` (string) - Oxide API token. If not specified, this defaults to the value of the
-  `OXIDE_TOKEN` environment variable.
-
 - `boot_disk_image_id` (string) - Image ID to use for the instance's boot disk. This can be obtained from the
   `oxide-image` data source.
 
@@ -46,6 +40,17 @@ or optional.
 ### Optional
 
 <!-- Code generated from the comments of the Config struct in component/builder/instance/config.go; DO NOT EDIT MANUALLY -->
+
+- `host` (string) - Oxide API URL (e.g., `https://oxide.sys.example.com`). If not specified,
+  this defaults to the value of the `OXIDE_HOST` environment variable. When
+  specified, `token` must be specified. Conflicts with `profile`.
+
+- `token` (string) - Oxide API token. If not specified, this defaults to the value of the
+  `OXIDE_TOKEN` environment variable. When specified, `host` must be specified.
+  Conflicts with `profile`.
+
+- `profile` (string) - Oxide credentials profile. If not specified, this defaults to the value of
+  the `OXIDE_PROFILE` environment variable. Conflicts with `host` and `token`.
 
 - `boot_disk_size` (uint64) - Size of the boot disk in bytes. Defaults to `21474836480`, or 20 GiB.
 

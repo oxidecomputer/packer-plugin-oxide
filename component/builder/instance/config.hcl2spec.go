@@ -67,8 +67,9 @@ type FlatConfig struct {
 	WinRMUseSSL               *bool             `mapstructure:"winrm_use_ssl" cty:"winrm_use_ssl" hcl:"winrm_use_ssl"`
 	WinRMInsecure             *bool             `mapstructure:"winrm_insecure" cty:"winrm_insecure" hcl:"winrm_insecure"`
 	WinRMUseNTLM              *bool             `mapstructure:"winrm_use_ntlm" cty:"winrm_use_ntlm" hcl:"winrm_use_ntlm"`
-	Host                      *string           `mapstructure:"host" required:"true" cty:"host" hcl:"host"`
-	Token                     *string           `mapstructure:"token" required:"true" cty:"token" hcl:"token"`
+	Host                      *string           `mapstructure:"host" required:"false" cty:"host" hcl:"host"`
+	Token                     *string           `mapstructure:"token" required:"false" cty:"token" hcl:"token"`
+	Profile                   *string           `mapstructure:"profile" required:"false" cty:"profile" hcl:"profile"`
 	BootDiskImageID           *string           `mapstructure:"boot_disk_image_id" required:"true" cty:"boot_disk_image_id" hcl:"boot_disk_image_id"`
 	Project                   *string           `mapstructure:"project" required:"true" cty:"project" hcl:"project"`
 	BootDiskSize              *uint64           `mapstructure:"boot_disk_size" cty:"boot_disk_size" hcl:"boot_disk_size"`
@@ -156,6 +157,7 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 		"winrm_use_ntlm":               &hcldec.AttrSpec{Name: "winrm_use_ntlm", Type: cty.Bool, Required: false},
 		"host":                         &hcldec.AttrSpec{Name: "host", Type: cty.String, Required: false},
 		"token":                        &hcldec.AttrSpec{Name: "token", Type: cty.String, Required: false},
+		"profile":                      &hcldec.AttrSpec{Name: "profile", Type: cty.String, Required: false},
 		"boot_disk_image_id":           &hcldec.AttrSpec{Name: "boot_disk_image_id", Type: cty.String, Required: false},
 		"project":                      &hcldec.AttrSpec{Name: "project", Type: cty.String, Required: false},
 		"boot_disk_size":               &hcldec.AttrSpec{Name: "boot_disk_size", Type: cty.Number, Required: false},

@@ -52,18 +52,32 @@ func (d *Datasource) Configure(args ...any) error {
 		if d.config.Token == "" {
 			d.config.Token = os.Getenv("OXIDE_TOKEN")
 		}
+
+		if d.config.Profile == "" {
+			d.config.Profile = os.Getenv("OXIDE_PROFILE")
+		}
 	}
 
 	// Enforce required configuration.
 	{
 		var multiErr *packer.MultiError
 
-		if d.config.Host == "" {
-			multiErr = packer.MultiErrorAppend(multiErr, errors.New("host is required"))
-		}
+		if d.config.Profile == "" {
+			if d.config.Host == "" {
+				multiErr = packer.MultiErrorAppend(multiErr, errors.New("host is required when profile is unset"))
+			}
 
-		if d.config.Token == "" {
-			multiErr = packer.MultiErrorAppend(multiErr, errors.New("token is required"))
+			if d.config.Token == "" {
+				multiErr = packer.MultiErrorAppend(multiErr, errors.New("token is required when profile is unset"))
+			}
+		} else {
+			if d.config.Host != "" {
+				multiErr = packer.MultiErrorAppend(multiErr, errors.New("host cannot be set when profile is set"))
+			}
+
+			if d.config.Token != "" {
+				multiErr = packer.MultiErrorAppend(multiErr, errors.New("token cannot be set when profile is set"))
+			}
 		}
 
 		if d.config.Name == "" {
@@ -82,8 +96,9 @@ func (d *Datasource) Configure(args ...any) error {
 // information in the format specified by [OutputSpec].
 func (d *Datasource) Execute() (cty.Value, error) {
 	oxideClient, err := oxide.NewClient(&oxide.Config{
-		Host:  d.config.Host,
-		Token: d.config.Token,
+		Host:    d.config.Host,
+		Token:   d.config.Token,
+		Profile: d.config.Profile,
 	})
 	if err != nil {
 		return cty.NullVal(cty.EmptyObject), fmt.Errorf("failed creating oxide client: %w", err)
