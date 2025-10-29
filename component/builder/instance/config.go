@@ -29,13 +29,19 @@ type Config struct {
 	// instance for provisioning.
 	Comm communicator.Config `mapstructure:",squash"`
 
-	// Oxide API URL (e.g., `https://oxide.sys.example.com`). If not specified, this
-	// defaults to the value of the `OXIDE_HOST` environment variable.
-	Host string `mapstructure:"host" required:"true"`
+	// Oxide API URL (e.g., `https://oxide.sys.example.com`). If not specified,
+	// this defaults to the value of the `OXIDE_HOST` environment variable. When
+	// specified, `token` must be specified. Conflicts with `profile`.
+	Host string `mapstructure:"host" required:"false"`
 
 	// Oxide API token. If not specified, this defaults to the value of the
-	// `OXIDE_TOKEN` environment variable.
-	Token string `mapstructure:"token" required:"true"`
+	// `OXIDE_TOKEN` environment variable. When specified, `host` must be specified.
+	// Conflicts with `profile`.
+	Token string `mapstructure:"token" required:"false"`
+
+	// Oxide credentials profile. If not specified, this defaults to the value of
+	// the `OXIDE_PROFILE` environment variable. Conflicts with `host` and `token`.
+	Profile string `mapstructure:"profile" required:"false"`
 
 	// Image ID to use for the instance's boot disk. This can be obtained from the
 	// `oxide-image` data source.
@@ -114,6 +120,10 @@ func (c *Config) Prepare(args ...any) ([]string, error) {
 			c.Token = os.Getenv("OXIDE_TOKEN")
 		}
 
+		if c.Profile == "" {
+			c.Profile = os.Getenv("OXIDE_PROFILE")
+		}
+
 		if c.Name == "" {
 			name, err := interpolate.Render("packer-{{timestamp}}", nil)
 			if err != nil {
@@ -172,12 +182,22 @@ func (c *Config) Prepare(args ...any) ([]string, error) {
 
 		c.Comm.SSHTemporaryKeyPairType = "ed25519"
 
-		if c.Host == "" {
-			multiErr = packer.MultiErrorAppend(multiErr, errors.New("host is required"))
-		}
+		if c.Profile == "" {
+			if c.Host == "" {
+				multiErr = packer.MultiErrorAppend(multiErr, errors.New("host is required when profile is unset"))
+			}
 
-		if c.Token == "" {
-			multiErr = packer.MultiErrorAppend(multiErr, errors.New("token is required"))
+			if c.Token == "" {
+				multiErr = packer.MultiErrorAppend(multiErr, errors.New("token is required when profile is unset"))
+			}
+		} else {
+			if c.Host != "" {
+				multiErr = packer.MultiErrorAppend(multiErr, errors.New("host cannot be set when profile is set"))
+			}
+
+			if c.Token != "" {
+				multiErr = packer.MultiErrorAppend(multiErr, errors.New("token cannot be set when profile is set"))
+			}
 		}
 
 		if c.Project == "" {

@@ -23,12 +23,6 @@ required or optional.
 
 <!-- Code generated from the comments of the Config struct in component/data-source/image/config.go; DO NOT EDIT MANUALLY -->
 
-- `host` (string) - Oxide API URL (e.g., `https://oxide.sys.example.com`). If not specified, this
-  defaults to the value of the `OXIDE_HOST` environment variable.
-
-- `token` (string) - Oxide API token. If not specified, this defaults to the value of the
-  `OXIDE_TOKEN` environment variable.
-
 - `name` (string) - Name of the image to fetch.
 
 <!-- End of code generated from the comments of the Config struct in component/data-source/image/config.go; -->
@@ -37,6 +31,17 @@ required or optional.
 ### Optional
 
 <!-- Code generated from the comments of the Config struct in component/data-source/image/config.go; DO NOT EDIT MANUALLY -->
+
+- `host` (string) - Oxide API URL (e.g., `https://oxide.sys.example.com`). If not specified,
+  this defaults to the value of the `OXIDE_HOST` environment variable. When
+  specified, `token` must be specified. Conflicts with `profile`.
+
+- `token` (string) - Oxide API token. If not specified, this defaults to the value of the
+  `OXIDE_TOKEN` environment variable. When specified, `host` must be specified.
+  Conflicts with `profile`.
+
+- `profile` (string) - Oxide credentials profile. If not specified, this defaults to the value of
+  the `OXIDE_PROFILE` environment variable. Conflicts with `host` and `token`.
 
 - `project` (string) - Name or ID of the project containing the image to fetch. Leave blank to fetch
   a silo image instead of a project image.
