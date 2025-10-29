@@ -259,6 +259,8 @@ successfully built and released.
 
 .. Update the `main.Version` value in `main.go`.
 
-.. Update the `version = ">= X.Y.Z"` version constraint in `README.adoc`,
-`docs/README.md`, and `example/template.pkr.hcl` to use the newly released tag,
-if semantically newer than the current tag.
+.. Update the `version = ">= X.Y.Z"` version constraint in `docs/README.md`, and
+`example/template.pkr.hcl` to use the newly released tag, if semantically newer
+than the current tag.
+
+.. Run `make generate` to generate updated documentation.
