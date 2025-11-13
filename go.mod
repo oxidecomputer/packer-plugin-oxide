@@ -6,7 +6,7 @@ require (
 	github.com/hashicorp/hcl/v2 v2.19.1
 	github.com/hashicorp/packer-plugin-sdk v0.6.1
 	github.com/mitchellh/mapstructure v1.5.0
-	github.com/oxidecomputer/oxide.go v0.4.0
+	github.com/oxidecomputer/oxide.go v0.7.0
 	github.com/zclconf/go-cty v1.13.3
 )
 
