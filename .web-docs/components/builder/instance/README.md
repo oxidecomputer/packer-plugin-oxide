@@ -88,7 +88,7 @@ or optional.
 
 ## Communicator
 
-A [`communicator`](/docs/communicators) can be configured for the builder.
+A [`communicator`](/packer/docs/communicators) can be configured for the builder.
 
 ### SSH
 
@@ -96,22 +96,22 @@ The builder automatically generates a temporary SSH key pair that's used to
 connect to the temporary instance unless one of the following SSH communicator
 arguments are set.
 
-- [`ssh_password`](/docs/communicators/ssh#ssh_password)
-- [`ssh_private_key_file`](/docs/communicators/ssh#ssh_private_key_file)
-- [`ssh_agent_auth`](/docs/communicators/ssh#ssh_agent_auth)
+- [`ssh_password`](/packer/docs/communicators/ssh#ssh_password)
+- [`ssh_private_key_file`](/packer/docs/communicators/ssh#ssh_private_key_file)
+- [`ssh_agent_auth`](/packer/docs/communicators/ssh#ssh_agent_auth)
 
 The temporary SSH public key is uploaded to Oxide, injected into the ephemeral
 instance, and deleted during cleanup. The temporary SSH private key is used by
 Packer to connect to the instance.
 
 The name of the temporary SSH public key uploaded to Oxide can be set using the
-[`temporary_key_pair_name`](/docs/communicators/ssh#temporary_key_pair_name)
+[`temporary_key_pair_name`](/packer/docs/communicators/ssh#temporary_key_pair_name)
 argument. Generally there's no reason to set this but it's available should it
 be necessary.
 
 ## Provisioner
 
-A [`provisioner`](/docs/provisioners) can be configured for the builder.
+A [`provisioner`](/packer/docs/provisioners) can be configured for the builder.
 
 ### File System Consistency
 
