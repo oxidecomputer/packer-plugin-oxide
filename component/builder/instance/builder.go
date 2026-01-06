@@ -8,7 +8,9 @@ package instance
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
+	"net/http"
 
 	"github.com/hashicorp/hcl/v2/hcldec"
 	"github.com/hashicorp/packer-plugin-sdk/communicator"
@@ -52,11 +54,23 @@ func (b *Builder) Prepare(args ...any) ([]string, []string, error) {
 
 // Run executes the builder steps to create an Oxide image.
 func (b *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (packer.Artifact, error) {
-	oxideClient, err := oxide.NewClient(&oxide.Config{
+	oxideConfig := &oxide.Config{
 		Host:    b.config.Host,
 		Token:   b.config.Token,
 		Profile: b.config.Profile,
-	})
+	}
+
+	if b.config.InsecureSkipVerify {
+		oxideConfig.HTTPClient = &http.Client{
+			Transport: &http.Transport{
+				TLSClientConfig: &tls.Config{
+					InsecureSkipVerify: true,
+				},
+			},
+		}
+	}
+
+	oxideClient, err := oxide.NewClient(oxideConfig)
 	if err != nil {
 		return nil, fmt.Errorf("failed creating oxide client: %w", err)
 	}

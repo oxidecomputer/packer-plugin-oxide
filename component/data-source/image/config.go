@@ -24,6 +24,11 @@ type Config struct {
 	// the `OXIDE_PROFILE` environment variable. Conflicts with `host` and `token`.
 	Profile string `mapstructure:"profile" required:"false"`
 
+	// Skip TLS certificate verification when connecting to the Oxide API. If not
+	// specified, checks the `OXIDE_INSECURE_SKIP_VERIFY` environment variable.
+	// Defaults to `false`.
+	InsecureSkipVerify bool `mapstructure:"insecure_skip_verify" required:"false"`
+
 	// Name of the image to fetch.
 	Name string `mapstructure:"name" required:"true"`
 
