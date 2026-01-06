@@ -116,7 +116,13 @@ func TestAccDataSource_Image(t *testing.T) {
 
 	tmpl := template.Must(template.ParseFS(packerTemplates, "testdata/*.pkr.hcl.tmpl"))
 
-	oxideClient, err := oxide.NewClient()
+	var oxideClientOpts []oxide.ClientOption
+	insecureSkipVerify := os.Getenv("OXIDE_INSECURE_SKIP_VERIFY") == "true"
+	if insecureSkipVerify {
+		oxideClientOpts = append(oxideClientOpts, oxide.WithInsecureSkipVerify())
+	}
+
+	oxideClient, err := oxide.NewClient(oxideClientOpts...)
 	if err != nil {
 		t.Fatalf("failed creating oxide client: %v", err)
 	}
@@ -153,13 +159,15 @@ func TestAccDataSource_Image(t *testing.T) {
 
 			var packerTemplate strings.Builder
 			if err := tmpl.ExecuteTemplate(&packerTemplate, "image.pkr.hcl.tmpl", struct {
-				Name      string
-				Project   string
-				SiloImage bool
+				Name               string
+				Project            string
+				SiloImage          bool
+				InsecureSkipVerify bool
 			}{
-				Name:      imageName,
-				Project:   tc.project,
-				SiloImage: tc.siloImage,
+				Name:               imageName,
+				Project:            tc.project,
+				SiloImage:          tc.siloImage,
+				InsecureSkipVerify: insecureSkipVerify,
 			}); err != nil {
 				t.Fatalf("failed rendering packer template: %v", err)
 			}

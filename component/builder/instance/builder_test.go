@@ -150,7 +150,13 @@ func TestAccBuilder_Instance(t *testing.T) {
 
 	tmpl := template.Must(template.ParseFS(packerTemplates, "testdata/*.pkr.hcl.tmpl"))
 
-	oxideClient, err := oxide.NewClient()
+	var oxideClientOpts []oxide.ClientOption
+	insecureSkipVerify := os.Getenv("OXIDE_INSECURE_SKIP_VERIFY") == "true"
+	if insecureSkipVerify {
+		oxideClientOpts = append(oxideClientOpts, oxide.WithInsecureSkipVerify())
+	}
+
+	oxideClient, err := oxide.NewClient(oxideClientOpts...)
 	if err != nil {
 		t.Fatalf("failed creating oxide client: %v", err)
 	}
@@ -200,19 +206,21 @@ func TestAccBuilder_Instance(t *testing.T) {
 
 			var packerTemplate strings.Builder
 			if err := tmpl.ExecuteTemplate(&packerTemplate, "instance.pkr.hcl.tmpl", struct {
-				Project         string
-				BootDiskImageID string
-				CPUs            uint64
-				Memory          uint64
-				BootDiskSize    uint64
-				ArtifactName    string
+				Project            string
+				BootDiskImageID    string
+				CPUs               uint64
+				Memory             uint64
+				BootDiskSize       uint64
+				ArtifactName       string
+				InsecureSkipVerify bool
 			}{
-				Project:         tc.project,
-				BootDiskImageID: tc.bootDiskImageID,
-				CPUs:            tc.cpus,
-				Memory:          tc.memory,
-				BootDiskSize:    tc.bootDiskSize,
-				ArtifactName:    artifactName,
+				Project:            tc.project,
+				BootDiskImageID:    tc.bootDiskImageID,
+				CPUs:               tc.cpus,
+				Memory:             tc.memory,
+				BootDiskSize:       tc.bootDiskSize,
+				ArtifactName:       artifactName,
+				InsecureSkipVerify: insecureSkipVerify,
 			},
 			); err != nil {
 				t.Fatalf("failed rendering packer template: %v", err)

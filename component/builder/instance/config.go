@@ -42,6 +42,10 @@ type Config struct {
 	// the `OXIDE_PROFILE` environment variable. Conflicts with `host` and `token`.
 	Profile string `mapstructure:"profile" required:"false"`
 
+	// Skip TLS certificate verification when connecting to the Oxide API.
+	// Defaults to `false`.
+	InsecureSkipVerify bool `mapstructure:"insecure_skip_verify" required:"false"`
+
 	// Image ID to use for the instance's boot disk. This can be obtained from the
 	// `oxide-image` data source.
 	BootDiskImageID string `mapstructure:"boot_disk_image_id" required:"true"`

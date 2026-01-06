@@ -3,6 +3,9 @@ data "oxide-image" "test" {
   {{- if not .SiloImage }}
   project = "{{ .Project }}"
   {{- end }}
+  {{- if .InsecureSkipVerify }}
+  insecure_skip_verify = true
+  {{- end }}
 }
 
 locals {

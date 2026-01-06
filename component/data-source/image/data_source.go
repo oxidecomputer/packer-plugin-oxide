@@ -71,6 +71,9 @@ func (d *Datasource) Execute() (cty.Value, error) {
 	if d.config.Profile != "" {
 		opts = append(opts, oxide.WithProfile(d.config.Profile))
 	}
+	if d.config.InsecureSkipVerify {
+		opts = append(opts, oxide.WithInsecureSkipVerify())
+	}
 	oxideClient, err := oxide.NewClient(opts...)
 	if err != nil {
 		return cty.NullVal(cty.EmptyObject), fmt.Errorf("failed creating oxide client: %w", err)
