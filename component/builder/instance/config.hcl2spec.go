@@ -70,6 +70,7 @@ type FlatConfig struct {
 	Host                      *string           `mapstructure:"host" required:"false" cty:"host" hcl:"host"`
 	Token                     *string           `mapstructure:"token" required:"false" cty:"token" hcl:"token"`
 	Profile                   *string           `mapstructure:"profile" required:"false" cty:"profile" hcl:"profile"`
+	InsecureSkipVerify        *bool             `mapstructure:"insecure_skip_verify" required:"false" cty:"insecure_skip_verify" hcl:"insecure_skip_verify"`
 	BootDiskImageID           *string           `mapstructure:"boot_disk_image_id" required:"true" cty:"boot_disk_image_id" hcl:"boot_disk_image_id"`
 	Project                   *string           `mapstructure:"project" required:"true" cty:"project" hcl:"project"`
 	BootDiskSize              *uint64           `mapstructure:"boot_disk_size" cty:"boot_disk_size" hcl:"boot_disk_size"`
@@ -158,6 +159,7 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 		"host":                         &hcldec.AttrSpec{Name: "host", Type: cty.String, Required: false},
 		"token":                        &hcldec.AttrSpec{Name: "token", Type: cty.String, Required: false},
 		"profile":                      &hcldec.AttrSpec{Name: "profile", Type: cty.String, Required: false},
+		"insecure_skip_verify":         &hcldec.AttrSpec{Name: "insecure_skip_verify", Type: cty.Bool, Required: false},
 		"boot_disk_image_id":           &hcldec.AttrSpec{Name: "boot_disk_image_id", Type: cty.String, Required: false},
 		"project":                      &hcldec.AttrSpec{Name: "project", Type: cty.String, Required: false},
 		"boot_disk_size":               &hcldec.AttrSpec{Name: "boot_disk_size", Type: cty.Number, Required: false},

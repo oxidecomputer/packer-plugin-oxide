@@ -43,6 +43,11 @@ type Config struct {
 	// the `OXIDE_PROFILE` environment variable. Conflicts with `host` and `token`.
 	Profile string `mapstructure:"profile" required:"false"`
 
+	// Skip TLS certificate verification when connecting to the Oxide API. If not
+	// specified, checks the `OXIDE_INSECURE_SKIP_VERIFY` environment variable.
+	// Defaults to `false`.
+	InsecureSkipVerify bool `mapstructure:"insecure_skip_verify" required:"false"`
+
 	// Image ID to use for the instance's boot disk. This can be obtained from the
 	// `oxide-image` data source.
 	BootDiskImageID string `mapstructure:"boot_disk_image_id" required:"true"`
@@ -122,6 +127,10 @@ func (c *Config) Prepare(args ...any) ([]string, error) {
 
 		if c.Profile == "" {
 			c.Profile = os.Getenv("OXIDE_PROFILE")
+		}
+
+		if !c.InsecureSkipVerify {
+			c.InsecureSkipVerify = os.Getenv("OXIDE_INSECURE_SKIP_VERIFY") == "true"
 		}
 
 		if c.Name == "" {

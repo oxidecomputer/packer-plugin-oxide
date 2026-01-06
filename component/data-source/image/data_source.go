@@ -8,8 +8,10 @@ package image
 
 import (
 	"context"
+	"crypto/tls"
 	"errors"
 	"fmt"
+	"net/http"
 	"os"
 
 	"github.com/hashicorp/hcl/v2/hcldec"
@@ -56,6 +58,10 @@ func (d *Datasource) Configure(args ...any) error {
 		if d.config.Profile == "" {
 			d.config.Profile = os.Getenv("OXIDE_PROFILE")
 		}
+
+		if !d.config.InsecureSkipVerify {
+			d.config.InsecureSkipVerify = os.Getenv("OXIDE_INSECURE_SKIP_VERIFY") == "true"
+		}
 	}
 
 	// Enforce required configuration.
@@ -95,11 +101,23 @@ func (d *Datasource) Configure(args ...any) error {
 // Execute fetches image information from the Oxide API and returns that
 // information in the format specified by [OutputSpec].
 func (d *Datasource) Execute() (cty.Value, error) {
-	oxideClient, err := oxide.NewClient(&oxide.Config{
+	oxideConfig := &oxide.Config{
 		Host:    d.config.Host,
 		Token:   d.config.Token,
 		Profile: d.config.Profile,
-	})
+	}
+
+	if d.config.InsecureSkipVerify {
+		oxideConfig.HTTPClient = &http.Client{
+			Transport: &http.Transport{
+				TLSClientConfig: &tls.Config{
+					InsecureSkipVerify: true,
+				},
+			},
+		}
+	}
+
+	oxideClient, err := oxide.NewClient(oxideConfig)
 	if err != nil {
 		return cty.NullVal(cty.EmptyObject), fmt.Errorf("failed creating oxide client: %w", err)
 	}
