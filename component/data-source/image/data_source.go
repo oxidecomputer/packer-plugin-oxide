@@ -10,7 +10,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"os"
 
 	"github.com/hashicorp/hcl/v2/hcldec"
 	"github.com/hashicorp/packer-plugin-sdk/hcl2helper"
@@ -43,42 +42,9 @@ func (d *Datasource) Configure(args ...any) error {
 		return fmt.Errorf("failed decoding configuration: %w", err)
 	}
 
-	// Set defaults.
-	{
-		if d.config.Host == "" {
-			d.config.Host = os.Getenv("OXIDE_HOST")
-		}
-
-		if d.config.Token == "" {
-			d.config.Token = os.Getenv("OXIDE_TOKEN")
-		}
-
-		if d.config.Profile == "" {
-			d.config.Profile = os.Getenv("OXIDE_PROFILE")
-		}
-	}
-
 	// Enforce required configuration.
 	{
 		var multiErr *packer.MultiError
-
-		if d.config.Profile == "" {
-			if d.config.Host == "" {
-				multiErr = packer.MultiErrorAppend(multiErr, errors.New("host is required when profile is unset"))
-			}
-
-			if d.config.Token == "" {
-				multiErr = packer.MultiErrorAppend(multiErr, errors.New("token is required when profile is unset"))
-			}
-		} else {
-			if d.config.Host != "" {
-				multiErr = packer.MultiErrorAppend(multiErr, errors.New("host cannot be set when profile is set"))
-			}
-
-			if d.config.Token != "" {
-				multiErr = packer.MultiErrorAppend(multiErr, errors.New("token cannot be set when profile is set"))
-			}
-		}
 
 		if d.config.Name == "" {
 			multiErr = packer.MultiErrorAppend(multiErr, errors.New("name is required"))
