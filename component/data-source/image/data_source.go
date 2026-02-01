@@ -95,11 +95,17 @@ func (d *Datasource) Configure(args ...any) error {
 // Execute fetches image information from the Oxide API and returns that
 // information in the format specified by [OutputSpec].
 func (d *Datasource) Execute() (cty.Value, error) {
-	oxideClient, err := oxide.NewClient(&oxide.Config{
-		Host:    d.config.Host,
-		Token:   d.config.Token,
-		Profile: d.config.Profile,
-	})
+	opts := make([]oxide.ClientOption, 0)
+	if d.config.Host != "" {
+		opts = append(opts, oxide.WithHost(d.config.Host))
+	}
+	if d.config.Token != "" {
+		opts = append(opts, oxide.WithToken(d.config.Token))
+	}
+	if d.config.Profile != "" {
+		opts = append(opts, oxide.WithProfile(d.config.Profile))
+	}
+	oxideClient, err := oxide.NewClient(opts...)
 	if err != nil {
 		return cty.NullVal(cty.EmptyObject), fmt.Errorf("failed creating oxide client: %w", err)
 	}

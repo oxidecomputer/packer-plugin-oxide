@@ -52,11 +52,17 @@ func (b *Builder) Prepare(args ...any) ([]string, []string, error) {
 
 // Run executes the builder steps to create an Oxide image.
 func (b *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (packer.Artifact, error) {
-	oxideClient, err := oxide.NewClient(&oxide.Config{
-		Host:    b.config.Host,
-		Token:   b.config.Token,
-		Profile: b.config.Profile,
-	})
+	opts := make([]oxide.ClientOption, 0)
+	if b.config.Host != "" {
+		opts = append(opts, oxide.WithHost(b.config.Host))
+	}
+	if b.config.Token != "" {
+		opts = append(opts, oxide.WithToken(b.config.Token))
+	}
+	if b.config.Profile != "" {
+		opts = append(opts, oxide.WithProfile(b.config.Profile))
+	}
+	oxideClient, err := oxide.NewClient(opts...)
 	if err != nil {
 		return nil, fmt.Errorf("failed creating oxide client: %w", err)
 	}

@@ -36,16 +36,32 @@ func (o *stepInstanceCreate) Run(ctx context.Context, stateBag multistep.StateBa
 				Name:        oxide.Name(config.Name),
 				Description: "Created by Packer.",
 				Size:        oxide.ByteCount(config.BootDiskSize),
-				DiskSource: oxide.DiskSource{
-					Type:    oxide.DiskSourceTypeImage,
-					ImageId: config.BootDiskImageID,
+				DiskBackend: oxide.DiskBackend{
+					Type: oxide.DiskBackendTypeDistributed,
+					DiskSource: oxide.DiskSource{
+						Type:    oxide.DiskSourceTypeImage,
+						ImageId: config.BootDiskImageID,
+					},
 				},
 			},
 			Description: "Created by Packer.",
 			ExternalIps: []oxide.ExternalIpCreate{
 				{
 					Type: oxide.ExternalIpCreateTypeEphemeral,
-					Pool: oxide.NameOrId(config.IPPool),
+					PoolSelector: func() oxide.PoolSelector {
+						if config.IPPool == "" {
+							return oxide.PoolSelector{
+								Type:      oxide.PoolSelectorTypeAuto,
+								IpVersion: oxide.IpVersionV4,
+							}
+						}
+
+						return oxide.PoolSelector{
+							Pool:      oxide.NameOrId(config.IPPool),
+							Type:      oxide.PoolSelectorTypeExplicit,
+							IpVersion: oxide.IpVersionV4,
+						}
+					}(),
 				},
 			},
 			Hostname: oxide.Hostname(config.Hostname),
@@ -60,6 +76,15 @@ func (o *stepInstanceCreate) Run(ctx context.Context, stateBag multistep.StateBa
 						Description: "Created by Packer.",
 						SubnetName:  oxide.Name(config.Subnet),
 						VpcName:     oxide.Name(config.VPC),
+						IpConfig: oxide.PrivateIpStackCreate{
+							Value: oxide.PrivateIpStackCreateV4{
+								Value: oxide.PrivateIpv4StackCreate{
+									Ip: oxide.Ipv4Assignment{
+										Type: oxide.Ipv4AssignmentTypeAuto,
+									},
+								},
+							},
+						},
 					},
 				},
 			},

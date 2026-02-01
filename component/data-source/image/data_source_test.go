@@ -229,9 +229,12 @@ func TestAccDataSource_Image(t *testing.T) {
 						Body: &oxide.DiskCreate{
 							Name:        oxide.Name(diskName),
 							Description: fmt.Sprintf("Created by Packer acceptance test %s.", testID),
-							DiskSource: oxide.DiskSource{
-								BlockSize: 4096,
-								Type:      oxide.DiskSourceTypeBlank,
+							DiskBackend: oxide.DiskBackend{
+								Type: oxide.DiskBackendTypeDistributed,
+								DiskSource: oxide.DiskSource{
+									BlockSize: 4096,
+									Type:      oxide.DiskSourceTypeBlank,
+								},
 							},
 							Size: 1024 * 1024 * 1024, // 1 GiB.
 						},
