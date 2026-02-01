@@ -10,7 +10,6 @@ package instance
 import (
 	"errors"
 	"fmt"
-	"os"
 
 	"github.com/hashicorp/packer-plugin-sdk/common"
 	"github.com/hashicorp/packer-plugin-sdk/communicator"
@@ -112,18 +111,6 @@ func (c *Config) Prepare(args ...any) ([]string, error) {
 
 	// Set defaults.
 	{
-		if c.Host == "" {
-			c.Host = os.Getenv("OXIDE_HOST")
-		}
-
-		if c.Token == "" {
-			c.Token = os.Getenv("OXIDE_TOKEN")
-		}
-
-		if c.Profile == "" {
-			c.Profile = os.Getenv("OXIDE_PROFILE")
-		}
-
 		if c.Name == "" {
 			name, err := interpolate.Render("packer-{{timestamp}}", nil)
 			if err != nil {
@@ -181,24 +168,6 @@ func (c *Config) Prepare(args ...any) ([]string, error) {
 		}
 
 		c.Comm.SSHTemporaryKeyPairType = "ed25519"
-
-		if c.Profile == "" {
-			if c.Host == "" {
-				multiErr = packer.MultiErrorAppend(multiErr, errors.New("host is required when profile is unset"))
-			}
-
-			if c.Token == "" {
-				multiErr = packer.MultiErrorAppend(multiErr, errors.New("token is required when profile is unset"))
-			}
-		} else {
-			if c.Host != "" {
-				multiErr = packer.MultiErrorAppend(multiErr, errors.New("host cannot be set when profile is set"))
-			}
-
-			if c.Token != "" {
-				multiErr = packer.MultiErrorAppend(multiErr, errors.New("token cannot be set when profile is set"))
-			}
-		}
 
 		if c.Project == "" {
 			multiErr = packer.MultiErrorAppend(multiErr, errors.New("project is required"))
