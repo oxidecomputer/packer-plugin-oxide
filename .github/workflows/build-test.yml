@@ -1,0 +1,29 @@
+name: build & test
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: "go.mod"
+      - name: build
+        run: make build
+      - name: lint
+        run: make lint
+      - name: generate
+        run: |
+          make generate
+          if ! git diff --exit-code; then
+            echo 'Generated files are out of date. Run `make generate` and commit the result.'
+            exit 1
+          fi

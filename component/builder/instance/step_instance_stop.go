@@ -20,7 +20,10 @@ var _ multistep.Step = (*stepInstanceStop)(nil)
 type stepInstanceStop struct{}
 
 // Run stops an Oxide instance and waits for it to be stopped.
-func (s *stepInstanceStop) Run(ctx context.Context, stateBag multistep.StateBag) multistep.StepAction {
+func (s *stepInstanceStop) Run(
+	ctx context.Context,
+	stateBag multistep.StateBag,
+) multistep.StepAction {
 	oxideClient := stateBag.Get("client").(*oxide.Client)
 	ui := stateBag.Get("ui").(packer.Ui)
 

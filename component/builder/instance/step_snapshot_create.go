@@ -20,7 +20,10 @@ var _ multistep.Step = (*stepSnapshotCreate)(nil)
 type stepSnapshotCreate struct{}
 
 // Run creates an Oxide snapshot and stores its information in stateBag.
-func (s *stepSnapshotCreate) Run(ctx context.Context, stateBag multistep.StateBag) multistep.StepAction {
+func (s *stepSnapshotCreate) Run(
+	ctx context.Context,
+	stateBag multistep.StateBag,
+) multistep.StepAction {
 	oxideClient := stateBag.Get("client").(*oxide.Client)
 	ui := stateBag.Get("ui").(packer.Ui)
 	config := stateBag.Get("config").(*Config)
@@ -65,13 +68,19 @@ func (s *stepSnapshotCreate) Cleanup(stateBag multistep.StateBag) {
 
 		ui.Sayf("Deleting Oxide snapshot: %s", snapshotID)
 
-		snapshotDeleteCtx, snapshotDeletCtxCancel := context.WithTimeout(context.TODO(), 30*time.Second)
+		snapshotDeleteCtx, snapshotDeletCtxCancel := context.WithTimeout(
+			context.TODO(),
+			30*time.Second,
+		)
 		defer snapshotDeletCtxCancel()
 
 		if err := oxideClient.SnapshotDelete(snapshotDeleteCtx, oxide.SnapshotDeleteParams{
 			Snapshot: oxide.NameOrId(snapshotID),
 		}); err != nil {
-			ui.Errorf("Failed deleting Oxide snapshot during cleanup. Please delete it manually: %v", err)
+			ui.Errorf(
+				"Failed deleting Oxide snapshot during cleanup. Please delete it manually: %v",
+				err,
+			)
 			return
 		}
 	}

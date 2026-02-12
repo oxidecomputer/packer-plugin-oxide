@@ -20,7 +20,10 @@ type stepInstanceExternalIPList struct{}
 
 // Run lists the external IP addresses for an Oxide instance and stores its
 // information in stateBag.
-func (s *stepInstanceExternalIPList) Run(ctx context.Context, stateBag multistep.StateBag) multistep.StepAction {
+func (s *stepInstanceExternalIPList) Run(
+	ctx context.Context,
+	stateBag multistep.StateBag,
+) multistep.StepAction {
 	oxideClient := stateBag.Get("client").(*oxide.Client)
 	ui := stateBag.Get("ui").(packer.Ui)
 
@@ -52,7 +55,9 @@ func (s *stepInstanceExternalIPList) Run(ctx context.Context, stateBag multistep
 	}
 
 	if len(validExternalIPs) == 0 {
-		ui.Error("Instance does not have any valid external IPs. Packer will be unable to connect to this instance.")
+		ui.Error(
+			"Instance does not have any valid external IPs. Packer will be unable to connect to this instance.",
+		)
 		return multistep.ActionHalt
 	}
 

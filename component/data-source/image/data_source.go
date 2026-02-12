@@ -21,9 +21,8 @@ import (
 
 var _ packer.Datasource = (*Datasource)(nil)
 
-// The `oxide-image` data source fetches [Oxide](https://oxide.computer) image
-// information for use in a Packer build. The image can be a project image or
-// silo image.
+// The `oxide-image` data source fetches [Oxide](https://oxide.computer) image information for use
+// in a Packer build. The image can be a project image or silo image.
 type Datasource struct {
 	config Config
 }
@@ -80,11 +79,20 @@ func (d *Datasource) Execute() (cty.Value, error) {
 	}
 
 	image, err := oxideClient.ImageView(context.TODO(), oxide.ImageViewParams{
-		Image:   oxide.NameOrId(d.config.Name),
-		Project: oxide.NameOrId(d.config.Project), // This relies on the Go SDK omitting empty strings from serialization to fetch silo images.
+		Image: oxide.NameOrId(d.config.Name),
+		Project: oxide.NameOrId(
+			d.config.Project,
+		), // This relies on the Go SDK omitting empty strings from serialization to fetch silo images.
 	})
 	if err != nil {
-		return cty.NullVal(cty.EmptyObject), fmt.Errorf("failed fetching image %q within project %q: %w", d.config.Name, d.config.Project, err)
+		return cty.NullVal(
+				cty.EmptyObject,
+			), fmt.Errorf(
+				"failed fetching image %q within project %q: %w",
+				d.config.Name,
+				d.config.Project,
+				err,
+			)
 	}
 
 	output := DatasourceOutput{

@@ -19,7 +19,10 @@ var _ multistep.Step = (*stepSSHKeyCreate)(nil)
 type stepSSHKeyCreate struct{}
 
 // Run creates an Oxide SSH public key and stores its information in stateBag.
-func (s *stepSSHKeyCreate) Run(ctx context.Context, stateBag multistep.StateBag) multistep.StepAction {
+func (s *stepSSHKeyCreate) Run(
+	ctx context.Context,
+	stateBag multistep.StateBag,
+) multistep.StepAction {
 	oxideClient := stateBag.Get("client").(*oxide.Client)
 	ui := stateBag.Get("ui").(packer.Ui)
 	config := stateBag.Get("config").(*Config)
@@ -68,7 +71,11 @@ func (s *stepSSHKeyCreate) Cleanup(stateBag multistep.StateBag) {
 		if err := oxideClient.CurrentUserSshKeyDelete(ctx, oxide.CurrentUserSshKeyDeleteParams{
 			SshKey: oxide.NameOrId(sshPublicKeyID),
 		}); err != nil {
-			ui.Errorf("Failed deleting Oxide SSH public key %s during cleanup. Please delete it manually: %v", sshPublicKeyID, err)
+			ui.Errorf(
+				"Failed deleting Oxide SSH public key %s during cleanup. Please delete it manually: %v",
+				sshPublicKeyID,
+				err,
+			)
 			return
 		}
 	}
