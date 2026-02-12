@@ -52,6 +52,9 @@ or optional.
 - `profile` (string) - Oxide credentials profile. If not specified, this defaults to the value of
   the `OXIDE_PROFILE` environment variable. Conflicts with `host` and `token`.
 
+- `insecure_skip_verify` (bool) - Skip TLS certificate verification when connecting to the Oxide API.
+  Defaults to `false`.
+
 - `boot_disk_size` (uint64) - Size of the boot disk in bytes. Defaults to `21474836480`, or 20 GiB.
 
 - `ip_pool` (string) - IP pool to allocate the instance's external IP from. If not specified, the

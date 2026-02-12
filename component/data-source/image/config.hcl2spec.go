@@ -10,11 +10,12 @@ import (
 // FlatConfig is an auto-generated flat version of Config.
 // Where the contents of a field with a `mapstructure:,squash` tag are bubbled up.
 type FlatConfig struct {
-	Host    *string `mapstructure:"host" required:"false" cty:"host" hcl:"host"`
-	Token   *string `mapstructure:"token" required:"false" cty:"token" hcl:"token"`
-	Profile *string `mapstructure:"profile" required:"false" cty:"profile" hcl:"profile"`
-	Name    *string `mapstructure:"name" required:"true" cty:"name" hcl:"name"`
-	Project *string `mapstructure:"project" cty:"project" hcl:"project"`
+	Host               *string `mapstructure:"host" required:"false" cty:"host" hcl:"host"`
+	Token              *string `mapstructure:"token" required:"false" cty:"token" hcl:"token"`
+	Profile            *string `mapstructure:"profile" required:"false" cty:"profile" hcl:"profile"`
+	InsecureSkipVerify *bool   `mapstructure:"insecure_skip_verify" required:"false" cty:"insecure_skip_verify" hcl:"insecure_skip_verify"`
+	Name               *string `mapstructure:"name" required:"true" cty:"name" hcl:"name"`
+	Project            *string `mapstructure:"project" cty:"project" hcl:"project"`
 }
 
 // FlatMapstructure returns a new FlatConfig.
@@ -29,11 +30,12 @@ func (*Config) FlatMapstructure() interface{ HCL2Spec() map[string]hcldec.Spec }
 // The decoded values from this spec will then be applied to a FlatConfig.
 func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 	s := map[string]hcldec.Spec{
-		"host":    &hcldec.AttrSpec{Name: "host", Type: cty.String, Required: false},
-		"token":   &hcldec.AttrSpec{Name: "token", Type: cty.String, Required: false},
-		"profile": &hcldec.AttrSpec{Name: "profile", Type: cty.String, Required: false},
-		"name":    &hcldec.AttrSpec{Name: "name", Type: cty.String, Required: false},
-		"project": &hcldec.AttrSpec{Name: "project", Type: cty.String, Required: false},
+		"host":                 &hcldec.AttrSpec{Name: "host", Type: cty.String, Required: false},
+		"token":                &hcldec.AttrSpec{Name: "token", Type: cty.String, Required: false},
+		"profile":              &hcldec.AttrSpec{Name: "profile", Type: cty.String, Required: false},
+		"insecure_skip_verify": &hcldec.AttrSpec{Name: "insecure_skip_verify", Type: cty.Bool, Required: false},
+		"name":                 &hcldec.AttrSpec{Name: "name", Type: cty.String, Required: false},
+		"project":              &hcldec.AttrSpec{Name: "project", Type: cty.String, Required: false},
 	}
 	return s
 }

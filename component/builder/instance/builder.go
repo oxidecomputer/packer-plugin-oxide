@@ -62,6 +62,9 @@ func (b *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (pack
 	if b.config.Profile != "" {
 		opts = append(opts, oxide.WithProfile(b.config.Profile))
 	}
+	if b.config.InsecureSkipVerify {
+		opts = append(opts, oxide.WithInsecureSkipVerify())
+	}
 	oxideClient, err := oxide.NewClient(opts...)
 	if err != nil {
 		return nil, fmt.Errorf("failed creating oxide client: %w", err)

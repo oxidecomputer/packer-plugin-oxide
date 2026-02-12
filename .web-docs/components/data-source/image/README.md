@@ -43,6 +43,9 @@ required or optional.
 - `profile` (string) - Oxide credentials profile. If not specified, this defaults to the value of
   the `OXIDE_PROFILE` environment variable. Conflicts with `host` and `token`.
 
+- `insecure_skip_verify` (bool) - Skip TLS certificate verification when connecting to the Oxide API.
+  Defaults to `false`.
+
 - `project` (string) - Name or ID of the project containing the image to fetch. Leave blank to fetch
   a silo image instead of a project image.
 
