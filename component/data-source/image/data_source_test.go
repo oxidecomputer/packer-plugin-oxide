@@ -32,13 +32,6 @@ func TestAccDataSource_Config(t *testing.T) {
 		return
 	}
 
-	requiredEnvVars := []string{"OXIDE_HOST", "OXIDE_TOKEN"}
-	for _, envVar := range requiredEnvVars {
-		if os.Getenv(envVar) == "" {
-			t.Fatalf("%s environment variable is required", envVar)
-		}
-	}
-
 	tmpl := template.Must(template.ParseFS(packerTemplates, "testdata/*.pkr.hcl.tmpl"))
 
 	executeTemplate := func(t *testing.T, name string, data any) string {
@@ -48,10 +41,6 @@ func TestAccDataSource_Config(t *testing.T) {
 		}
 		return s.String()
 	}
-
-	// Hold on to these so we can reset their values in between tests.
-	oxideHost := os.Getenv("OXIDE_HOST")
-	oxideToken := os.Getenv("OXIDE_TOKEN")
 
 	tt := []*acctest.PluginTestCase{
 		{
@@ -69,51 +58,8 @@ func TestAccDataSource_Config(t *testing.T) {
 					}
 				}
 
-				assertFileContains(t, logfile, "host is required")
-				assertFileContains(t, logfile, "token is required")
 				assertFileContains(t, logfile, "name is required")
 
-				return nil
-			},
-			Setup: func() error {
-				os.Unsetenv("OXIDE_HOST")
-				os.Unsetenv("OXIDE_TOKEN")
-				return nil
-			},
-			Teardown: func() error {
-				os.Setenv("OXIDE_HOST", oxideHost)
-				os.Setenv("OXIDE_TOKEN", oxideToken)
-				return nil
-			},
-		},
-		{
-			Name: "MissingAPICredentials",
-			Type: "oxide-image",
-			Template: executeTemplate(
-				t,
-				"config.pkr.hcl.tmpl",
-				struct{ Name string }{Name: "test-image"},
-			),
-			Check: func(buildCommand *exec.Cmd, logfile string) error {
-				if buildCommand.ProcessState != nil {
-					if buildCommand.ProcessState.ExitCode() != 1 {
-						return fmt.Errorf("Unexpected exit code. Logfile: %s", logfile)
-					}
-				}
-
-				assertFileContains(t, logfile, "host is required")
-				assertFileContains(t, logfile, "token is required")
-
-				return nil
-			},
-			Setup: func() error {
-				os.Unsetenv("OXIDE_HOST")
-				os.Unsetenv("OXIDE_TOKEN")
-				return nil
-			},
-			Teardown: func() error {
-				os.Setenv("OXIDE_HOST", oxideHost)
-				os.Setenv("OXIDE_TOKEN", oxideToken)
 				return nil
 			},
 		},
@@ -161,7 +107,7 @@ func TestAccDataSource_Image(t *testing.T) {
 		return
 	}
 
-	requiredEnvVars := []string{"OXIDE_HOST", "OXIDE_TOKEN", "OXIDE_PROJECT"}
+	requiredEnvVars := []string{"OXIDE_PROJECT"}
 	for _, envVar := range requiredEnvVars {
 		if os.Getenv(envVar) == "" {
 			t.Fatalf("%s environment variable is required", envVar)
@@ -170,7 +116,7 @@ func TestAccDataSource_Image(t *testing.T) {
 
 	tmpl := template.Must(template.ParseFS(packerTemplates, "testdata/*.pkr.hcl.tmpl"))
 
-	oxideClient, err := oxide.NewClient(nil)
+	oxideClient, err := oxide.NewClient()
 	if err != nil {
 		t.Fatalf("failed creating oxide client: %v", err)
 	}
