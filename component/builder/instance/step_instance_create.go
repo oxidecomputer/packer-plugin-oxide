@@ -34,37 +34,42 @@ func (o *stepInstanceCreate) Run(
 		Project: oxide.NameOrId(config.Project),
 		Body: &oxide.InstanceCreate{
 			AntiAffinityGroups: []oxide.NameOrId{},
-			BootDisk: &oxide.InstanceDiskAttachment{
-				Type:        oxide.InstanceDiskAttachmentTypeCreate,
-				Name:        oxide.Name(config.Name),
-				Description: "Created by Packer.",
-				Size:        oxide.ByteCount(config.BootDiskSize),
-				DiskBackend: oxide.DiskBackend{
-					Type: oxide.DiskBackendTypeDistributed,
-					DiskSource: oxide.DiskSource{
-						Type:    oxide.DiskSourceTypeImage,
-						ImageId: config.BootDiskImageID,
+			BootDisk: oxide.InstanceDiskAttachment{
+				Value: &oxide.InstanceDiskAttachmentCreate{
+					Name:        oxide.Name(config.Name),
+					Description: "Created by Packer.",
+					Size:        oxide.ByteCount(config.BootDiskSize),
+					DiskBackend: oxide.DiskBackend{
+						Value: &oxide.DiskBackendDistributed{
+							DiskSource: oxide.DiskSource{
+								Value: &oxide.DiskSourceImage{
+									ImageId: config.BootDiskImageID,
+								},
+							},
+						},
 					},
 				},
 			},
 			Description: "Created by Packer.",
 			ExternalIps: []oxide.ExternalIpCreate{
 				{
-					Type: oxide.ExternalIpCreateTypeEphemeral,
-					PoolSelector: func() oxide.PoolSelector {
-						if config.IPPool == "" {
-							return oxide.PoolSelector{
-								Type:      oxide.PoolSelectorTypeAuto,
-								IpVersion: oxide.IpVersionV4,
+					Value: &oxide.ExternalIpCreateEphemeral{
+						PoolSelector: func() oxide.PoolSelector {
+							if config.IPPool == "" {
+								return oxide.PoolSelector{
+									Value: &oxide.PoolSelectorAuto{
+										IpVersion: oxide.IpVersionV4,
+									},
+								}
 							}
-						}
 
-						return oxide.PoolSelector{
-							Pool:      oxide.NameOrId(config.IPPool),
-							Type:      oxide.PoolSelectorTypeExplicit,
-							IpVersion: oxide.IpVersionV4,
-						}
-					}(),
+							return oxide.PoolSelector{
+								Value: &oxide.PoolSelectorExplicit{
+									Pool: oxide.NameOrId(config.IPPool),
+								},
+							}
+						}(),
+					},
 				},
 			},
 			Hostname: oxide.Hostname(config.Hostname),
@@ -72,18 +77,19 @@ func (o *stepInstanceCreate) Run(
 			Name:     oxide.Name(config.Name),
 			Ncpus:    oxide.InstanceCpuCount(config.CPUs),
 			NetworkInterfaces: oxide.InstanceNetworkInterfaceAttachment{
-				Type: oxide.InstanceNetworkInterfaceAttachmentTypeCreate,
-				Params: []oxide.InstanceNetworkInterfaceCreate{
-					{
-						Name:        oxide.Name(config.Name),
-						Description: "Created by Packer.",
-						SubnetName:  oxide.Name(config.Subnet),
-						VpcName:     oxide.Name(config.VPC),
-						IpConfig: oxide.PrivateIpStackCreate{
-							Value: oxide.PrivateIpStackCreateV4{
-								Value: oxide.PrivateIpv4StackCreate{
-									Ip: oxide.Ipv4Assignment{
-										Type: oxide.Ipv4AssignmentTypeAuto,
+				Value: &oxide.InstanceNetworkInterfaceAttachmentCreate{
+					Params: []oxide.InstanceNetworkInterfaceCreate{
+						{
+							Name:        oxide.Name(config.Name),
+							Description: "Created by Packer.",
+							SubnetName:  oxide.Name(config.Subnet),
+							VpcName:     oxide.Name(config.VPC),
+							IpConfig: oxide.PrivateIpStackCreate{
+								Value: &oxide.PrivateIpStackCreateV4{
+									Value: oxide.PrivateIpv4StackCreate{
+										Ip: oxide.Ipv4Assignment{
+											Value: &oxide.Ipv4AssignmentAuto{},
+										},
 									},
 								},
 							},

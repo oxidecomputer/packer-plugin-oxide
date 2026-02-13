@@ -186,10 +186,12 @@ func TestAccDataSource_Image(t *testing.T) {
 								testID,
 							),
 							DiskBackend: oxide.DiskBackend{
-								Type: oxide.DiskBackendTypeDistributed,
-								DiskSource: oxide.DiskSource{
-									BlockSize: 4096,
-									Type:      oxide.DiskSourceTypeBlank,
+								Value: &oxide.DiskBackendDistributed{
+									DiskSource: oxide.DiskSource{
+										Value: &oxide.DiskSourceBlank{
+											BlockSize: 4096,
+										},
+									},
 								},
 							},
 							Size: 1024 * 1024 * 1024, // 1 GiB.
@@ -230,8 +232,9 @@ func TestAccDataSource_Image(t *testing.T) {
 							Os:      "Blank",
 							Version: "0.0.0",
 							Source: oxide.ImageSource{
-								Id:   snapshot.Id,
-								Type: oxide.ImageSourceTypeSnapshot,
+								Value: &oxide.ImageSourceSnapshot{
+									Id: snapshot.Id,
+								},
 							},
 						},
 					})
