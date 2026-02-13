@@ -8,7 +8,6 @@ import (
 	"embed"
 	"errors"
 	"fmt"
-	"io"
 	"os"
 	"os/exec"
 	"regexp"
@@ -181,8 +180,11 @@ func TestAccDataSource_Image(t *testing.T) {
 					disk, err := oxideClient.DiskCreate(t.Context(), oxide.DiskCreateParams{
 						Project: oxide.NameOrId(tc.project),
 						Body: &oxide.DiskCreate{
-							Name:        oxide.Name(diskName),
-							Description: fmt.Sprintf("Created by Packer acceptance test %s.", testID),
+							Name: oxide.Name(diskName),
+							Description: fmt.Sprintf(
+								"Created by Packer acceptance test %s.",
+								testID,
+							),
 							DiskBackend: oxide.DiskBackend{
 								Type: oxide.DiskBackendTypeDistributed,
 								DiskSource: oxide.DiskSource{
@@ -198,14 +200,20 @@ func TestAccDataSource_Image(t *testing.T) {
 					}
 
 					t.Logf("setup: creating oxide snapshot %s", snapshotName)
-					snapshot, err := oxideClient.SnapshotCreate(t.Context(), oxide.SnapshotCreateParams{
-						Project: oxide.NameOrId(tc.project),
-						Body: &oxide.SnapshotCreate{
-							Name:        oxide.Name(snapshotName),
-							Description: fmt.Sprintf("Created by Packer acceptance test %s.", testID),
-							Disk:        oxide.NameOrId(disk.Id),
+					snapshot, err := oxideClient.SnapshotCreate(
+						t.Context(),
+						oxide.SnapshotCreateParams{
+							Project: oxide.NameOrId(tc.project),
+							Body: &oxide.SnapshotCreate{
+								Name: oxide.Name(snapshotName),
+								Description: fmt.Sprintf(
+									"Created by Packer acceptance test %s.",
+									testID,
+								),
+								Disk: oxide.NameOrId(disk.Id),
+							},
 						},
-					})
+					)
 					if err != nil {
 						return fmt.Errorf("failed creating snapshot %s: %v", snapshotName, err)
 					}
@@ -214,10 +222,13 @@ func TestAccDataSource_Image(t *testing.T) {
 					_, err = oxideClient.ImageCreate(t.Context(), oxide.ImageCreateParams{
 						Project: oxide.NameOrId(tc.project),
 						Body: &oxide.ImageCreate{
-							Name:        oxide.Name(imageName),
-							Description: fmt.Sprintf("Created by Packer acceptance test %s.", testID),
-							Os:          "Blank",
-							Version:     "0.0.0",
+							Name: oxide.Name(imageName),
+							Description: fmt.Sprintf(
+								"Created by Packer acceptance test %s.",
+								testID,
+							),
+							Os:      "Blank",
+							Version: "0.0.0",
 							Source: oxide.ImageSource{
 								Id:   snapshot.Id,
 								Type: oxide.ImageSourceTypeSnapshot,
@@ -249,7 +260,10 @@ func TestAccDataSource_Image(t *testing.T) {
 							Image:   oxide.NameOrId(imageName),
 							Project: oxide.NameOrId(oxideProject),
 						}); err != nil {
-							joinedError = errors.Join(joinedError, fmt.Errorf("failed demoting oxide image %s: %v", imageName, err))
+							joinedError = errors.Join(
+								joinedError,
+								fmt.Errorf("failed demoting oxide image %s: %v", imageName, err),
+							)
 						}
 					}
 
@@ -258,7 +272,10 @@ func TestAccDataSource_Image(t *testing.T) {
 						Image:   oxide.NameOrId(imageName),
 						Project: oxide.NameOrId(oxideProject),
 					}); err != nil {
-						joinedError = errors.Join(joinedError, fmt.Errorf("failed deleting oxide image %s: %v", imageName, err))
+						joinedError = errors.Join(
+							joinedError,
+							fmt.Errorf("failed deleting oxide image %s: %v", imageName, err),
+						)
 					}
 
 					t.Logf("teardown: deleting oxide snapshot %s", snapshotName)
@@ -266,7 +283,10 @@ func TestAccDataSource_Image(t *testing.T) {
 						Snapshot: oxide.NameOrId(snapshotName),
 						Project:  oxide.NameOrId(oxideProject),
 					}); err != nil {
-						joinedError = errors.Join(joinedError, fmt.Errorf("failed deleting oxide snapshot %s: %v", snapshotName, err))
+						joinedError = errors.Join(
+							joinedError,
+							fmt.Errorf("failed deleting oxide snapshot %s: %v", snapshotName, err),
+						)
 					}
 
 					t.Logf("teardown: deleting oxide disk %s", diskName)
@@ -274,7 +294,10 @@ func TestAccDataSource_Image(t *testing.T) {
 						Disk:    oxide.NameOrId(diskName),
 						Project: oxide.NameOrId(oxideProject),
 					}); err != nil {
-						joinedError = errors.Join(joinedError, fmt.Errorf("failed deleting oxide disk %s: %v", imageName, err))
+						joinedError = errors.Join(
+							joinedError,
+							fmt.Errorf("failed deleting oxide disk %s: %v", imageName, err),
+						)
 					}
 
 					if joinedError != nil {
@@ -298,13 +321,7 @@ func TestAccDataSource_Image(t *testing.T) {
 }
 
 func assertFileContains(t *testing.T, filename string, expected string) {
-	f, err := os.Open(filename)
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer f.Close()
-
-	b, err := io.ReadAll(f)
+	b, err := os.ReadFile(filename)
 	if err != nil {
 		t.Fatal(err)
 	}

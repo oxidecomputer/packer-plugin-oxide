@@ -7,8 +7,7 @@
 
 package image
 
-// The configuration arguments for the data source. Arguments can either be
-// required or optional.
+// The configuration arguments for the data source. Arguments can either be required or optional.
 type Config struct {
 	// Oxide API URL (e.g., `https://oxide.sys.example.com`). If not specified,
 	// this defaults to the value of the `OXIDE_HOST` environment variable. When

@@ -22,10 +22,9 @@ const BuilderID = "oxide.instance"
 
 var _ packer.Builder = (*Builder)(nil)
 
-// The `oxide-instance` builder creates custom images for use with
-// [Oxide](https://oxide.computer). The builder launches a temporary instance
-// from an existing source image, connects to the instance using its external
-// IP, provisions the instance, and then creates a new image from the instance's
+// The `oxide-instance` builder creates custom images for use with [Oxide](https://oxide.computer).
+// The builder launches a temporary instance from an existing source image, connects to the instance
+// using its external IP, provisions the instance, and then creates a new image from the instance's
 // boot disk. The resulting image can be used to launch new instances on Oxide.
 //
 // The builder does not manage images. Once it creates an image, it is up to you
@@ -51,7 +50,11 @@ func (b *Builder) Prepare(args ...any) ([]string, []string, error) {
 }
 
 // Run executes the builder steps to create an Oxide image.
-func (b *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (packer.Artifact, error) {
+func (b *Builder) Run(
+	ctx context.Context,
+	ui packer.Ui,
+	hook packer.Hook,
+) (packer.Artifact, error) {
 	opts := make([]oxide.ClientOption, 0)
 	if b.config.Host != "" {
 		opts = append(opts, oxide.WithHost(b.config.Host))
@@ -79,7 +82,7 @@ func (b *Builder) Run(ctx context.Context, ui packer.Ui, hook packer.Hook) (pack
 		&stepImageView{},
 		multistep.If(genTempSSHKeyPair, &communicator.StepSSHKeyGen{
 			CommConf:            &b.config.Comm,
-			SSHTemporaryKeyPair: b.config.Comm.SSH.SSHTemporaryKeyPair,
+			SSHTemporaryKeyPair: b.config.Comm.SSHTemporaryKeyPair,
 		}),
 		multistep.If(genTempSSHKeyPair, &stepSSHKeyCreate{}),
 		&stepInstanceCreate{},

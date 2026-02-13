@@ -18,7 +18,10 @@ var _ multistep.Step = (*stepImageCreate)(nil)
 type stepImageCreate struct{}
 
 // Run creates an Oxide image and stores its information in stateBag.
-func (s *stepImageCreate) Run(ctx context.Context, stateBag multistep.StateBag) multistep.StepAction {
+func (s *stepImageCreate) Run(
+	ctx context.Context,
+	stateBag multistep.StateBag,
+) multistep.StepAction {
 	oxideClient := stateBag.Get("client").(*oxide.Client)
 	ui := stateBag.Get("ui").(packer.Ui)
 	config := stateBag.Get("config").(*Config)

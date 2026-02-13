@@ -2,9 +2,8 @@ Type: `oxide-image`
 
 <!-- Code generated from the comments of the Datasource struct in component/data-source/image/data_source.go; DO NOT EDIT MANUALLY -->
 
-The `oxide-image` data source fetches [Oxide](https://oxide.computer) image
-information for use in a Packer build. The image can be a project image or
-silo image.
+The `oxide-image` data source fetches [Oxide](https://oxide.computer) image information for use
+in a Packer build. The image can be a project image or silo image.
 
 <!-- End of code generated from the comments of the Datasource struct in component/data-source/image/data_source.go; -->
 
@@ -13,8 +12,7 @@ silo image.
 
 <!-- Code generated from the comments of the Config struct in component/data-source/image/config.go; DO NOT EDIT MANUALLY -->
 
-The configuration arguments for the data source. Arguments can either be
-required or optional.
+The configuration arguments for the data source. Arguments can either be required or optional.
 
 <!-- End of code generated from the comments of the Config struct in component/data-source/image/config.go; -->
 

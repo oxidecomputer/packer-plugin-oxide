@@ -2,10 +2,9 @@ Type: `oxide-instance`
 
 <!-- Code generated from the comments of the Builder struct in component/builder/instance/builder.go; DO NOT EDIT MANUALLY -->
 
-The `oxide-instance` builder creates custom images for use with
-[Oxide](https://oxide.computer). The builder launches a temporary instance
-from an existing source image, connects to the instance using its external
-IP, provisions the instance, and then creates a new image from the instance's
+The `oxide-instance` builder creates custom images for use with [Oxide](https://oxide.computer).
+The builder launches a temporary instance from an existing source image, connects to the instance
+using its external IP, provisions the instance, and then creates a new image from the instance's
 boot disk. The resulting image can be used to launch new instances on Oxide.
 
 The builder does not manage images. Once it creates an image, it is up to you
@@ -18,8 +17,7 @@ to use it or delete it.
 
 <!-- Code generated from the comments of the Config struct in component/builder/instance/config.go; DO NOT EDIT MANUALLY -->
 
-The configuration arguments for the builder. Arguments can either be required
-or optional.
+The configuration arguments for the builder. Arguments can either be required or optional.
 
 <!-- End of code generated from the comments of the Config struct in component/builder/instance/config.go; -->
 

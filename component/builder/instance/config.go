@@ -19,8 +19,7 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
-// The configuration arguments for the builder. Arguments can either be required
-// or optional.
+// The configuration arguments for the builder. Arguments can either be required or optional.
 type Config struct {
 	common.PackerConfig `mapstructure:",squash"`
 
@@ -118,7 +117,10 @@ func (c *Config) Prepare(args ...any) ([]string, error) {
 		if c.Name == "" {
 			name, err := interpolate.Render("packer-{{timestamp}}", nil)
 			if err != nil {
-				return nil, fmt.Errorf("failed rendering default name, this bug should be reported: %w", err)
+				return nil, fmt.Errorf(
+					"failed rendering default name, this bug should be reported: %w",
+					err,
+				)
 			}
 
 			c.Name = name
@@ -127,7 +129,10 @@ func (c *Config) Prepare(args ...any) ([]string, error) {
 		if c.Hostname == "" {
 			hostname, err := interpolate.Render("packer-{{timestamp}}", nil)
 			if err != nil {
-				return nil, fmt.Errorf("failed rendering default hostname, this bug should be reported: %w", err)
+				return nil, fmt.Errorf(
+					"failed rendering default hostname, this bug should be reported: %w",
+					err,
+				)
 			}
 
 			c.Hostname = hostname
@@ -165,7 +170,10 @@ func (c *Config) Prepare(args ...any) ([]string, error) {
 		if c.Comm.SSHTemporaryKeyPairName == "" {
 			sshTemporaryKeyPairName, err := interpolate.Render("packer-{{timestamp}}", nil)
 			if err != nil {
-				return nil, fmt.Errorf("failed rendering default ssh temporary key pair name, this bug should be reported: %w", err)
+				return nil, fmt.Errorf(
+					"failed rendering default ssh temporary key pair name, this bug should be reported: %w",
+					err,
+				)
 			}
 
 			c.Comm.SSHTemporaryKeyPairName = sshTemporaryKeyPairName
@@ -178,7 +186,10 @@ func (c *Config) Prepare(args ...any) ([]string, error) {
 		}
 
 		if c.BootDiskImageID == "" {
-			multiErr = packer.MultiErrorAppend(multiErr, errors.New("boot_disk_image_id is required"))
+			multiErr = packer.MultiErrorAppend(
+				multiErr,
+				errors.New("boot_disk_image_id is required"),
+			)
 		}
 
 		if multiErr != nil && len(multiErr.Errors) > 0 {

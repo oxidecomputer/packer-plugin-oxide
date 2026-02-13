@@ -1,3 +1,6 @@
+# Go dependencies.
+vendor/
+
 # Build artifacts.
 main
 packer-plugin-oxide

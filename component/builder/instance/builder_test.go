@@ -8,7 +8,6 @@ import (
 	"embed"
 	"errors"
 	"fmt"
-	"io"
 	"os"
 	"os/exec"
 	"regexp"
@@ -241,7 +240,10 @@ func TestAccBuilder_Instance(t *testing.T) {
 						Image:   oxide.NameOrId(artifactName),
 						Project: oxide.NameOrId(oxideProject),
 					}); err != nil {
-						joinedError = errors.Join(joinedError, fmt.Errorf("failed deleting oxide image %s: %v", artifactName, err))
+						joinedError = errors.Join(
+							joinedError,
+							fmt.Errorf("failed deleting oxide image %s: %v", artifactName, err),
+						)
 					}
 
 					if joinedError != nil {
@@ -267,13 +269,7 @@ func TestAccBuilder_Instance(t *testing.T) {
 }
 
 func assertFileContains(t *testing.T, filename string, expected string) {
-	f, err := os.Open(filename)
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer f.Close()
-
-	b, err := io.ReadAll(f)
+	b, err := os.ReadFile(filename)
 	if err != nil {
 		t.Fatal(err)
 	}

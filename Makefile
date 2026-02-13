@@ -38,6 +38,14 @@ generate: install-packer-sdc
 test:
 	go test -race -count $(TEST_COUNT) $(TEST_PACKAGES) -timeout=3m
 
+.PHONY: fmt
+fmt:
+	@ go tool -modfile=tools/go.mod golangci-lint fmt
+
+.PHONY: lint
+lint:
+	@ go tool -modfile=tools/go.mod golangci-lint run
+
 .PHONY: testacc
 testacc: dev
 	PACKER_ACC=1 OXIDE_PROJECT=$(OXIDE_PROJECT) OXIDE_BOOT_DISK_IMAGE_NAME=$(OXIDE_BOOT_DISK_IMAGE_NAME) go test -count $(TEST_COUNT) -v $(TEST_PACKAGES) -timeout=120m
