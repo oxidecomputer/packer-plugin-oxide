@@ -45,23 +45,32 @@ func (s *stepInstanceExternalIPList) Run(
 		return multistep.ActionHalt
 	}
 
-	// Filter out invalid external IPs (e.g., SNAT).
-	validExternalIPs := make([]oxide.ExternalIp, 0, len(results.Items))
-	for _, externalIP := range results.Items {
-		switch externalIP.Kind {
-		case oxide.ExternalIpKindEphemeral, oxide.ExternalIpKindFloating:
-			validExternalIPs = append(validExternalIPs, externalIP)
+	// Filter out invalid external IPs (e.g., SNAT) and extract the IP.
+	var externalIP string
+	for _, eip := range results.Items {
+		switch eip.Kind() {
+		case oxide.ExternalIpKindEphemeral:
+			if v, ok := eip.AsEphemeral(); ok {
+				externalIP = v.Ip
+			}
+		case oxide.ExternalIpKindFloating:
+			if v, ok := eip.AsFloating(); ok {
+				externalIP = v.Ip
+			}
+		}
+		if externalIP != "" {
+			break
 		}
 	}
 
-	if len(validExternalIPs) == 0 {
+	if externalIP == "" {
 		ui.Error(
 			"Instance does not have any valid external IPs. Packer will be unable to connect to this instance.",
 		)
 		return multistep.ActionHalt
 	}
 
-	stateBag.Put("external_ip", validExternalIPs[0].Ip)
+	stateBag.Put("external_ip", externalIP)
 
 	return multistep.ActionContinue
 }

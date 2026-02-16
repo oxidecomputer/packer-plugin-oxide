@@ -37,8 +37,9 @@ func (s *stepImageCreate) Run(
 			Name:        oxide.Name(config.ArtifactName),
 			Os:          config.ArtifactOS,
 			Source: oxide.ImageSource{
-				Type: oxide.ImageSourceTypeSnapshot,
-				Id:   snapshotID,
+				Value: &oxide.ImageSourceSnapshot{
+					Id: snapshotID,
+				},
 			},
 			Version: config.ArtifactVersion,
 		},
