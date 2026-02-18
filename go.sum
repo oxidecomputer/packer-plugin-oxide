@@ -270,8 +270,8 @@ github.com/nu7hatch/gouuid v0.0.0-20131221200532-179d4d0c4d8d h1:VhgPp6v9qf9Agr/
 github.com/nu7hatch/gouuid v0.0.0-20131221200532-179d4d0c4d8d/go.mod h1:YUTz3bUH2ZwIWBy3CJBeOBEugqcmXREj14T+iG/4k4U=
 github.com/nywilken/go-cty v1.13.3 h1:03U99oXf3j3g9xgqAE3YGpixCjM8Mg09KZ0Ji9LzX0o=
 github.com/nywilken/go-cty v1.13.3/go.mod h1:YKQzy/7pZ7iq2jNFzy5go57xdxdWoLLpaEp4u238AE0=
-github.com/oxidecomputer/oxide.go v0.7.1-0.20260216192632-3a774965bc83 h1:oO9JyCkZHu4jX6Aqm8bn1VYz0MUEWYdqZQbAeG8C0Es=
-github.com/oxidecomputer/oxide.go v0.7.1-0.20260216192632-3a774965bc83/go.mod h1:pL9BcSmHMyhR8Utxr2AcV6wG59OIrcSV3dNduIzGGdo=
+github.com/oxidecomputer/oxide.go v0.8.0 h1:ASdHKty2hr3gA/T+9a0gbeKTp45bx3V8gE2Q8mJuQoI=
+github.com/oxidecomputer/oxide.go v0.8.0/go.mod h1:pL9BcSmHMyhR8Utxr2AcV6wG59OIrcSV3dNduIzGGdo=
 github.com/packer-community/winrmcp v0.0.0-20180921211025-c76d91c1e7db h1:9uViuKtx1jrlXLBW/pMnhOfzn3iSEdLase/But/IZRU=
 github.com/packer-community/winrmcp v0.0.0-20180921211025-c76d91c1e7db/go.mod h1:f6Izs6JvFTdnRbziASagjZ2vmf55NSIkC/weStxCHqk=
 github.com/pascaldekloe/goe v0.0.0-20180627143212-57f6aae5913c/go.mod h1:lzWF7FIEvWOWxwDKqyGYQf6ZUaNfKdP144TG7ZOy1lc=
