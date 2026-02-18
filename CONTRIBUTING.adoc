@@ -245,32 +245,26 @@ log which variables are required and document which resources are dependencies.
 
 . Choose the commit that's to be released.
 
-. Create a Git tag in the format `vMAJOR.MINOR.PATCH`. This tag should match the
-value of `main.Version` for the commit that was chosen.
+. For `X.Y.0` versions.
 
-. Push the Git tag to the remote.
+.. Create and push a `release-X.Y` branch.
+
+.. Create a Git tag in the format `vX.Y.Z`. This tag should match the value of
+`main.Version` for the commit that was chosen.
+
+. Push the `vX.Y.Z` Git tag to the remote.
 
 . Monitor the `Release` GitHub Actions workflow to ensure the plugin has been
 successfully built and released.
 
-. Update the release notes for the release.
+. Update the release notes for the GitHub release by clearing them out and
+clicking the *Generate release notes* button.
 
-. Checkout the release tag and push the following changes in a new commit.
+On both the `release-X.Y` and default branches, push the following changes.
 
 .. Update the `main.Version` value in `main.go`.
 
 .. Update the `version = ">= X.Y.Z"` version constraint in `docs/README.md`, and
-`example/template.pkr.hcl` to use the newly released tag, if semantically newer
-than the current tag.
-
-.. Run `make generate` to generate updated documentation.
-
-. Checkout the default branch and push the following changes in a new pull
-request.
-
-.. Update the `main.Version` value in `main.go` to the next development version.
-
-.. Update the `version = ">= X.Y.Z"` version constraint in `docs/README.md`, and
-`example/template.pkr.hcl` to the next development version.
+`example/template.pkr.hcl` to use the next development version.
 
 .. Run `make generate` to generate updated documentation.
