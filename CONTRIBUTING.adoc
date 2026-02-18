@@ -264,3 +264,13 @@ successfully built and released.
 than the current tag.
 
 .. Run `make generate` to generate updated documentation.
+
+. Checkout the default branch and push the following changes in a new pull
+request.
+
+.. Update the `main.Version` value in `main.go` to the next development version.
+
+.. Update the `version = ">= X.Y.Z"` version constraint in `docs/README.md`, and
+`example/template.pkr.hcl` to the next development version.
+
+.. Run `make generate` to generate updated documentation.
