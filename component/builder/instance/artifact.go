@@ -6,8 +6,10 @@ package instance
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/hashicorp/packer-plugin-sdk/packer"
+	registryimage "github.com/hashicorp/packer-plugin-sdk/packer/registry/image"
 )
 
 var _ packer.Artifact = (*Artifact)(nil)
@@ -19,6 +21,8 @@ type Artifact struct {
 	ImageID string
 	// Name of the created image.
 	ImageName string
+	// Unique identifier of the source image used to create this artifact.
+	SourceImageID string
 	// Additional state data associated with the build.
 	StateData map[string]any
 }
@@ -45,6 +49,17 @@ func (a *Artifact) String() string {
 
 // State returns builder state related to the artifact.
 func (a *Artifact) State(name string) any {
+	if name == registryimage.ArtifactStateURI {
+		img, err := registryimage.FromArtifact(a,
+			registryimage.WithProvider("oxide"),
+			registryimage.WithSourceID(a.SourceImageID),
+		)
+		if err != nil {
+			log.Printf("[DEBUG] error encountered when creating registry image: %v", err)
+			return nil
+		}
+		return img
+	}
 	return a.StateData[name]
 }
 

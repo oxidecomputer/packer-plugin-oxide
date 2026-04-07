@@ -119,8 +119,9 @@ func (b *Builder) Run(
 	}
 
 	artifact := &Artifact{
-		ImageID:   stateBag.Get("image_id").(string),
-		ImageName: stateBag.Get("image_name").(string),
+		ImageID:       stateBag.Get("image_id").(string),
+		ImageName:     stateBag.Get("image_name").(string),
+		SourceImageID: stateBag.Get("source_image_id").(string),
 	}
 
 	return artifact, nil
