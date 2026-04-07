@@ -38,6 +38,8 @@ func (s *stepImageView) Run(ctx context.Context, stateBag multistep.StateBag) mu
 
 	ui.Sayf("Fetched Oxide image: %s", image.Id)
 
+	stateBag.Put("source_image_id", string(image.Id))
+
 	timestamp, err := interpolate.Render("{{timestamp}}", &config.ctx)
 	if err != nil {
 		ui.Error("Failed rendering timestamp interpolation.")
