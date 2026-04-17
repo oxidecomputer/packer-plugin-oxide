@@ -94,8 +94,8 @@ func (b *Builder) Run(
 		},
 		&commonsteps.StepProvision{},
 		&stepInstanceStop{},
-		&stepSnapshotCreate{},
-		&stepImageCreate{},
+		multistep.If(!b.config.SkipCreateImage, &stepSnapshotCreate{}),
+		multistep.If(!b.config.SkipCreateImage, &stepImageCreate{}),
 	}
 
 	stateBag := &multistep.BasicStateBag{}
@@ -109,6 +109,10 @@ func (b *Builder) Run(
 
 	if err, ok := stateBag.GetOk("error"); ok {
 		return nil, err.(error)
+	}
+
+	if b.config.SkipCreateImage {
+		ui.Say("Skipping image creation since skip_create_image is set.")
 	}
 
 	_, hasImageID := stateBag.GetOk("image_id")

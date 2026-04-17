@@ -96,6 +96,13 @@ type Config struct {
 	// version of the source image as retrieved from Oxide.
 	ArtifactVersion string `mapstructure:"artifact_version"`
 
+	// Skip creating the final image. When set to `true`, the build will boot the
+	// temporary instance and run all provisioners but will not create a snapshot
+	// or image. The temporary instance is still cleaned up normally. This is useful
+	// for testing provisioner logic without incurring the cost of image creation.
+	// Defaults to `false`.
+	SkipCreateImage bool `mapstructure:"skip_create_image" required:"false"`
+
 	ctx interpolate.Context
 }
 

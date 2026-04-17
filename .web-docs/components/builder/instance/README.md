@@ -84,6 +84,12 @@ The configuration arguments for the builder. Arguments can either be required or
   `SOURCE_IMAGE_VERSION-{{timestamp}}` where `SOURCE_IMAGE_VERSION` is the
   version of the source image as retrieved from Oxide.
 
+- `skip_create_image` (bool) - Skip creating the final image. When set to `true`, the build will boot the
+  temporary instance and run all provisioners but will not create a snapshot
+  or image. The temporary instance is still cleaned up normally. This is useful
+  for testing provisioner logic without incurring the cost of image creation.
+  Defaults to `false`.
+
 <!-- End of code generated from the comments of the Config struct in component/builder/instance/config.go; -->
 
 
