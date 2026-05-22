@@ -6,6 +6,7 @@ package instance
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
 	"time"
 
@@ -111,6 +112,12 @@ func (o *stepInstanceCreate) Run(
 
 				return res
 			}(config.SSHPublicKeys),
+			UserData: func(userData string) string {
+				if userData == "" {
+					return ""
+				}
+				return base64.StdEncoding.EncodeToString([]byte(userData))
+			}(config.UserData),
 		},
 	})
 	if err != nil {

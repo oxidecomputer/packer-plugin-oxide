@@ -86,6 +86,7 @@ type FlatConfig struct {
 	ArtifactOS                *string           `mapstructure:"artifact_os" cty:"artifact_os" hcl:"artifact_os"`
 	ArtifactVersion           *string           `mapstructure:"artifact_version" cty:"artifact_version" hcl:"artifact_version"`
 	SkipCreateImage           *bool             `mapstructure:"skip_create_image" required:"false" cty:"skip_create_image" hcl:"skip_create_image"`
+	UserData                  *string           `mapstructure:"user_data" required:"false" cty:"user_data" hcl:"user_data"`
 }
 
 // FlatMapstructure returns a new FlatConfig.
@@ -176,6 +177,7 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 		"artifact_os":                  &hcldec.AttrSpec{Name: "artifact_os", Type: cty.String, Required: false},
 		"artifact_version":             &hcldec.AttrSpec{Name: "artifact_version", Type: cty.String, Required: false},
 		"skip_create_image":            &hcldec.AttrSpec{Name: "skip_create_image", Type: cty.Bool, Required: false},
+		"user_data":                    &hcldec.AttrSpec{Name: "user_data", Type: cty.String, Required: false},
 	}
 	return s
 }

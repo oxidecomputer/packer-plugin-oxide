@@ -103,6 +103,16 @@ type Config struct {
 	// Defaults to `false`.
 	SkipCreateImage bool `mapstructure:"skip_create_image" required:"false"`
 
+	// User data for instance initialization systems such as cloud-init. The
+	// value is a UTF-8 string and will be Base64-encoded by the plugin before
+	// transmission. The maximum size is 32 KiB, measured before encoding. Use
+	// Packer's built-in functions such as `file` to read content from disk.
+	// Packer does not wait for user data to finish executing before shutting
+	// down the instance. If your user data must complete before the image is
+	// created, run `cloud-init status --wait` or an equivalent in a
+	// provisioner.
+	UserData string `mapstructure:"user_data" required:"false"`
+
 	ctx interpolate.Context
 }
 
@@ -196,6 +206,13 @@ func (c *Config) Prepare(args ...any) ([]string, error) {
 			multiErr = packer.MultiErrorAppend(
 				multiErr,
 				errors.New("boot_disk_image_id is required"),
+			)
+		}
+
+		if len(c.UserData) > 32*1024 {
+			multiErr = packer.MultiErrorAppend(
+				multiErr,
+				errors.New("user_data must be 32 KiB or less of unencoded data"),
 			)
 		}
 
