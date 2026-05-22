@@ -84,6 +84,12 @@ func (b *Builder) Run(
 			CommConf:            &b.config.Comm,
 			SSHTemporaryKeyPair: b.config.Comm.SSHTemporaryKeyPair,
 		}),
+		multistep.If(b.config.PackerDebug && genTempSSHKeyPair,
+			&communicator.StepDumpSSHKey{
+				Path: fmt.Sprintf("oxide-packer-plugin-%s.pem", b.config.PackerBuildName),
+				SSH:  &b.config.Comm.SSH,
+			},
+		),
 		multistep.If(genTempSSHKeyPair, &stepSSHKeyCreate{}),
 		&stepInstanceCreate{},
 		&stepInstanceExternalIPList{},
