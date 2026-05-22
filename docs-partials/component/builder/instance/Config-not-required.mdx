@@ -51,4 +51,13 @@
   for testing provisioner logic without incurring the cost of image creation.
   Defaults to `false`.
 
+- `user_data` (string) - User data for instance initialization systems such as cloud-init. The
+  value is a UTF-8 string and will be Base64-encoded by the plugin before
+  transmission. The maximum size is 32 KiB, measured before encoding. Use
+  Packer's built-in functions such as `file` to read content from disk.
+  Packer does not wait for user data to finish executing before shutting
+  down the instance. If your user data must complete before the image is
+  created, run `cloud-init status --wait` or an equivalent in a
+  provisioner.
+
 <!-- End of code generated from the comments of the Config struct in component/builder/instance/config.go; -->
