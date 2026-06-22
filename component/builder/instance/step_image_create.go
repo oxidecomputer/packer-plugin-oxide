@@ -33,8 +33,8 @@ func (s *stepImageCreate) Run(
 	image, err := oxideClient.ImageCreate(ctx, oxide.ImageCreateParams{
 		Project: oxide.NameOrId(config.Project),
 		Body: &oxide.ImageCreate{
-			Description: "Created by Packer.",
 			Name:        oxide.Name(config.ArtifactName),
+			Description: config.ArtifactDescription,
 			Os:          config.ArtifactOS,
 			Source: oxide.ImageSource{
 				Value: &oxide.ImageSourceSnapshot{

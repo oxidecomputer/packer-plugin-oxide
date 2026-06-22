@@ -77,6 +77,9 @@ The configuration arguments for the builder. Arguments can either be required or
   `SOURCE_IMAGE_NAME-{{timestamp}}` where `SOURCE_IMAGE_NAME` is the name of
   the source image as retrieved from Oxide.
 
+- `artifact_description` (string) - Description of the resulting image artifact. Defaults to the description of
+  the source image as retrieved from Oxide.
+
 - `artifact_os` (string) - Operating system of the resulting image artifact. Defaults to the OS of the
   source image as retrieved from Oxide.
 

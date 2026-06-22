@@ -51,6 +51,10 @@ func (s *stepImageView) Run(ctx context.Context, stateBag multistep.StateBag) mu
 		config.ArtifactName = fmt.Sprintf("%s-%s", image.Name, timestamp)
 	}
 
+	if config.ArtifactDescription == "" {
+		config.ArtifactDescription = image.Description
+	}
+
 	if config.ArtifactOS == "" {
 		config.ArtifactOS = image.Os
 	}

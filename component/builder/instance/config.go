@@ -87,6 +87,10 @@ type Config struct {
 	// the source image as retrieved from Oxide.
 	ArtifactName string `mapstructure:"artifact_name"`
 
+	// Description of the resulting image artifact. Defaults to the description of
+	// the source image as retrieved from Oxide.
+	ArtifactDescription string `mapstructure:"artifact_description"`
+
 	// Operating system of the resulting image artifact. Defaults to the OS of the
 	// source image as retrieved from Oxide.
 	ArtifactOS string `mapstructure:"artifact_os"`
