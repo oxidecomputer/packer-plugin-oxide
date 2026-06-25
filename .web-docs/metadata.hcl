@@ -3,7 +3,7 @@ integration {
   name        = "Oxide"
   description = "The Oxide multi-component plugin can be used with HashiCorp (IBM) Packer to create custom Oxide images."
   identifier  = "packer/oxidecomputer/oxide"
-  flags       = []
+  flags       = ["hcp-ready"]
   docs {
     process_docs    = true
     readme_location = "./README.md"
