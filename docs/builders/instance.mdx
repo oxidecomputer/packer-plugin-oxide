@@ -27,6 +27,20 @@ Type: `oxide-instance`
 
 @include 'component/builder/instance/Config-not-required.mdx'
 
+## Interpolation
+
+This builder does not support Go template interpolation (e.g., `{{timestamp}}`).
+Instead, use [HCL functions](/packer/docs/templates/hcl_templates/functions) to
+compute dynamic values such as timestamped artifact names.
+
+```hcl
+# Interpolation: Unsupported
+artifact_name = "packer-{{timestamp}}"
+
+# HCL Functions: Supported
+artifact_name = "packer-${formatdate("YYYY-MM-DD", timestamp())}"
+```
+
 ## Communicator
 
 A [`communicator`](/packer/docs/communicators) can be configured for the builder.

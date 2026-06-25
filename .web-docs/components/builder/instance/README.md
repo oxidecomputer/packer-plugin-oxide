@@ -62,9 +62,14 @@ The configuration arguments for the builder. Arguments can either be required or
 
 - `subnet` (string) - Subnet to create the instance within. Defaults to `default`.
 
-- `name` (string) - Name of the temporary instance. Defaults to `packer-{{timestamp}}`.
+- `name` (string) - Name of the temporary instance. Defaults to `packer-BUILD_NAME-RUN_ID` where
+  `BUILD_NAME` is the Packer source name and `RUN_ID` is a short prefix of the
+  unique ID Packer assigns to the current run. This must be unique to prevent
+  Oxide instance name conflicts.
 
-- `hostname` (string) - Hostname of the temporary instance. Defaults to `packer-{{timestamp}}`.
+- `hostname` (string) - Hostname of the temporary instance. Defaults to `packer-BUILD_NAME-RUN_ID`
+  where `BUILD_NAME` is the Packer source name and `RUN_ID` is a short prefix
+  of the unique ID Packer assigns to the current run.
 
 - `cpus` (uint64) - Number of vCPUs to provision the instance with. Defaults to `1`.
 
@@ -74,8 +79,10 @@ The configuration arguments for the builder. Arguments can either be required or
 - `ssh_public_keys` ([]string) - An array of names or IDs of SSH public keys to inject into the instance.
 
 - `artifact_name` (string) - Name of the resulting image artifact. Defaults to
-  `SOURCE_IMAGE_NAME-{{timestamp}}` where `SOURCE_IMAGE_NAME` is the name of
-  the source image as retrieved from Oxide.
+  `SOURCE_IMAGE_NAME-BUILD_NAME-RUN_ID` where `SOURCE_IMAGE_NAME` is the name
+  of the source image as retrieved from Oxide, `BUILD_NAME` is the Packer
+  source name, and `RUN_ID` is a short prefix of the unique ID Packer assigns
+  to the current run.
 
 - `artifact_description` (string) - Description of the resulting image artifact. Defaults to the description of
   the source image as retrieved from Oxide.
@@ -83,9 +90,8 @@ The configuration arguments for the builder. Arguments can either be required or
 - `artifact_os` (string) - Operating system of the resulting image artifact. Defaults to the OS of the
   source image as retrieved from Oxide.
 
-- `artifact_version` (string) - Version of the resulting image artifact. Defaults to
-  `SOURCE_IMAGE_VERSION-{{timestamp}}` where `SOURCE_IMAGE_VERSION` is the
-  version of the source image as retrieved from Oxide.
+- `artifact_version` (string) - Version of the resulting image artifact. Defaults to the version of the
+  source image as retrieved from Oxide.
 
 - `skip_create_image` (bool) - Skip creating the final image. When set to `true`, the build will boot the
   temporary instance and run all provisioners but will not create a snapshot
@@ -104,6 +110,20 @@ The configuration arguments for the builder. Arguments can either be required or
 
 <!-- End of code generated from the comments of the Config struct in component/builder/instance/config.go; -->
 
+
+## Interpolation
+
+This builder does not support Go template interpolation (e.g., `{{timestamp}}`).
+Instead, use [HCL functions](/packer/docs/templates/hcl_templates/functions) to
+compute dynamic values such as timestamped artifact names.
+
+```hcl
+# Interpolation: Unsupported
+artifact_name = "packer-{{timestamp}}"
+
+# HCL Functions: Supported
+artifact_name = "packer-${formatdate("YYYY-MM-DD", timestamp())}"
+```
 
 ## Communicator
 

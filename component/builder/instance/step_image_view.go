@@ -10,7 +10,6 @@ import (
 
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	"github.com/hashicorp/packer-plugin-sdk/packer"
-	"github.com/hashicorp/packer-plugin-sdk/template/interpolate"
 	"github.com/oxidecomputer/oxide.go/oxide"
 )
 
@@ -40,15 +39,8 @@ func (s *stepImageView) Run(ctx context.Context, stateBag multistep.StateBag) mu
 
 	stateBag.Put("source_image_id", string(image.Id))
 
-	timestamp, err := interpolate.Render("{{timestamp}}", &config.ctx)
-	if err != nil {
-		ui.Error("Failed rendering timestamp interpolation.")
-		stateBag.Put("error", err)
-		return multistep.ActionHalt
-	}
-
 	if config.ArtifactName == "" {
-		config.ArtifactName = fmt.Sprintf("%s-%s", image.Name, timestamp)
+		config.ArtifactName = fmt.Sprintf("%s-%s", image.Name, config.uniqueSuffix())
 	}
 
 	if config.ArtifactDescription == "" {
@@ -60,7 +52,7 @@ func (s *stepImageView) Run(ctx context.Context, stateBag multistep.StateBag) mu
 	}
 
 	if config.ArtifactVersion == "" {
-		config.ArtifactVersion = fmt.Sprintf("%s-%s", image.Version, timestamp)
+		config.ArtifactVersion = image.Version
 	}
 
 	return multistep.ActionContinue
