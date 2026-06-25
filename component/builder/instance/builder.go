@@ -80,6 +80,7 @@ func (b *Builder) Run(
 
 	steps := []multistep.Step{
 		&stepImageView{},
+		multistep.If(!b.config.SkipCreateImage, &stepArtifactValidate{}),
 		multistep.If(genTempSSHKeyPair, &communicator.StepSSHKeyGen{
 			CommConf:            &b.config.Comm,
 			SSHTemporaryKeyPair: b.config.Comm.SSHTemporaryKeyPair,

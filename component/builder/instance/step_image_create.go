@@ -6,6 +6,7 @@ package instance
 
 import (
 	"context"
+	"errors"
 
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	"github.com/hashicorp/packer-plugin-sdk/packer"
@@ -27,6 +28,28 @@ func (s *stepImageCreate) Run(
 	config := stateBag.Get("config").(*Config)
 
 	snapshotID := stateBag.Get("snapshot_id").(string)
+
+	// `-force` is set so we'll delete the existing image before creating a new one.
+	if config.PackerForce {
+		existingImageID := stateBag.Get("existing_image_id").(string)
+		existingImageName := stateBag.Get("existing_image_name").(string)
+
+		ui.Sayf(
+			"Deleting existing Oxide image %s (%s) because -force is set",
+			existingImageName,
+			existingImageID,
+		)
+
+		err := oxideClient.ImageDelete(ctx, oxide.ImageDeleteParams{
+			Project: oxide.NameOrId(config.Project),
+			Image:   oxide.NameOrId(existingImageName),
+		})
+		if err != nil && !errors.Is(err, oxide.ErrObjectNotFound) {
+			ui.Error("Failed deleting existing Oxide image.")
+			stateBag.Put("error", err)
+			return multistep.ActionHalt
+		}
+	}
 
 	ui.Say("Creating Oxide image")
 
