@@ -10,12 +10,14 @@ package instance
 import (
 	"errors"
 	"fmt"
+	"os"
+	"strings"
 
 	"github.com/hashicorp/packer-plugin-sdk/common"
 	"github.com/hashicorp/packer-plugin-sdk/communicator"
 	"github.com/hashicorp/packer-plugin-sdk/packer"
 	"github.com/hashicorp/packer-plugin-sdk/template/config"
-	"github.com/hashicorp/packer-plugin-sdk/template/interpolate"
+	"github.com/hashicorp/packer-plugin-sdk/uuid"
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -66,10 +68,15 @@ type Config struct {
 	// Subnet to create the instance within. Defaults to `default`.
 	Subnet string `mapstructure:"subnet"`
 
-	// Name of the temporary instance. Defaults to `packer-{{timestamp}}`.
+	// Name of the temporary instance. Defaults to `packer-BUILD_NAME-RUN_ID` where
+	// `BUILD_NAME` is the Packer source name and `RUN_ID` is a short prefix of the
+	// unique ID Packer assigns to the current run. This must be unique to prevent
+	// Oxide instance name conflicts.
 	Name string `mapstructure:"name"`
 
-	// Hostname of the temporary instance. Defaults to `packer-{{timestamp}}`.
+	// Hostname of the temporary instance. Defaults to `packer-BUILD_NAME-RUN_ID`
+	// where `BUILD_NAME` is the Packer source name and `RUN_ID` is a short prefix
+	// of the unique ID Packer assigns to the current run.
 	Hostname string `mapstructure:"hostname"`
 
 	// Number of vCPUs to provision the instance with. Defaults to `1`.
@@ -83,8 +90,10 @@ type Config struct {
 	SSHPublicKeys []string `mapstructure:"ssh_public_keys"`
 
 	// Name of the resulting image artifact. Defaults to
-	// `SOURCE_IMAGE_NAME-{{timestamp}}` where `SOURCE_IMAGE_NAME` is the name of
-	// the source image as retrieved from Oxide.
+	// `SOURCE_IMAGE_NAME-BUILD_NAME-RUN_ID` where `SOURCE_IMAGE_NAME` is the name
+	// of the source image as retrieved from Oxide, `BUILD_NAME` is the Packer
+	// source name, and `RUN_ID` is a short prefix of the unique ID Packer assigns
+	// to the current run.
 	ArtifactName string `mapstructure:"artifact_name"`
 
 	// Description of the resulting image artifact. Defaults to the description of
@@ -95,9 +104,8 @@ type Config struct {
 	// source image as retrieved from Oxide.
 	ArtifactOS string `mapstructure:"artifact_os"`
 
-	// Version of the resulting image artifact. Defaults to
-	// `SOURCE_IMAGE_VERSION-{{timestamp}}` where `SOURCE_IMAGE_VERSION` is the
-	// version of the source image as retrieved from Oxide.
+	// Version of the resulting image artifact. Defaults to the version of the
+	// source image as retrieved from Oxide.
 	ArtifactVersion string `mapstructure:"artifact_version"`
 
 	// Skip creating the final image. When set to `true`, the build will boot the
@@ -116,8 +124,6 @@ type Config struct {
 	// created, run `cloud-init status --wait` or an equivalent in a
 	// provisioner.
 	UserData string `mapstructure:"user_data" required:"false"`
-
-	ctx interpolate.Context
 }
 
 // Prepare decodes the configuration and validates it.
@@ -125,10 +131,9 @@ func (c *Config) Prepare(args ...any) ([]string, error) {
 	var metadata mapstructure.Metadata
 
 	if err := config.Decode(c, &config.DecodeOpts{
-		Metadata:           &metadata,
-		Interpolate:        true,
-		InterpolateContext: &c.ctx,
-		PluginType:         BuilderID,
+		Metadata:    &metadata,
+		Interpolate: false,
+		PluginType:  BuilderID,
 	}, args...); err != nil {
 		return nil, fmt.Errorf("failed decoding configuration: %w", err)
 	}
@@ -136,27 +141,11 @@ func (c *Config) Prepare(args ...any) ([]string, error) {
 	// Set defaults.
 	{
 		if c.Name == "" {
-			name, err := interpolate.Render("packer-{{timestamp}}", nil)
-			if err != nil {
-				return nil, fmt.Errorf(
-					"failed rendering default name, this bug should be reported: %w",
-					err,
-				)
-			}
-
-			c.Name = name
+			c.Name = fmt.Sprintf("packer-%s", c.uniqueSuffix())
 		}
 
 		if c.Hostname == "" {
-			hostname, err := interpolate.Render("packer-{{timestamp}}", nil)
-			if err != nil {
-				return nil, fmt.Errorf(
-					"failed rendering default hostname, this bug should be reported: %w",
-					err,
-				)
-			}
-
-			c.Hostname = hostname
+			c.Hostname = fmt.Sprintf("packer-%s", c.uniqueSuffix())
 		}
 
 		if c.CPUs == 0 {
@@ -184,20 +173,12 @@ func (c *Config) Prepare(args ...any) ([]string, error) {
 	{
 		var multiErr *packer.MultiError
 
-		if errs := c.Comm.Prepare(&c.ctx); len(errs) > 0 {
+		if errs := c.Comm.Prepare(nil); len(errs) > 0 {
 			multiErr = packer.MultiErrorAppend(multiErr, errs...)
 		}
 
 		if c.Comm.SSHTemporaryKeyPairName == "" {
-			sshTemporaryKeyPairName, err := interpolate.Render("packer-{{timestamp}}", nil)
-			if err != nil {
-				return nil, fmt.Errorf(
-					"failed rendering default ssh temporary key pair name, this bug should be reported: %w",
-					err,
-				)
-			}
-
-			c.Comm.SSHTemporaryKeyPairName = sshTemporaryKeyPairName
+			c.Comm.SSHTemporaryKeyPairName = fmt.Sprintf("packer-%s", c.uniqueSuffix())
 		}
 
 		c.Comm.SSHTemporaryKeyPairType = "ed25519"
@@ -228,4 +209,45 @@ func (c *Config) Prepare(args ...any) ([]string, error) {
 	packer.LogSecretFilter.Set(c.Token)
 
 	return nil, nil
+}
+
+// uniqueSuffix returns an identifier, derived from Packer-provided values,
+// that is used to configure resource names that are unique and traceable to the
+// Packer build that created them.
+//
+// The following Packer-provided values are used to generate the identifier.
+//
+//   - [common.PackerConfig.PackerBuildName]: The build source name which is
+//     unique for each build in a Packer configuration.
+//   - PACKER_RUN_UUID: The unique ID Packer assigned to the current run, which is
+//     shared among the builds in a Packer configuration. When this is unset, it
+//     falls back to a generated UUID that's unique for each build. This value is
+//     truncated to 8 characters to keep the generated identifier within Oxide's
+//     63-character name limit.
+func (c *Config) uniqueSuffix() string {
+	runID := os.Getenv("PACKER_RUN_UUID")
+	if runID == "" {
+		runID = uuid.TimeOrderedUUID()
+	}
+
+	if len(runID) > 8 {
+		runID = runID[:8]
+	}
+
+	// Transform the Packer build name into a name that the Oxide API will accept.
+	// This is mainly here to transform `_` into `-`.
+	buildName := strings.Map(func(r rune) rune {
+		switch {
+		case r >= 'a' && r <= 'z',
+			r >= 'A' && r <= 'Z',
+			r >= '0' && r <= '9',
+			r == '-':
+			return r
+		default:
+			return '-'
+		}
+	}, c.PackerBuildName)
+	buildName = strings.Trim(buildName, "-")
+
+	return fmt.Sprintf("%s-%s", buildName, runID)
 }
