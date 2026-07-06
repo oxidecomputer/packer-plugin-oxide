@@ -59,6 +59,7 @@ func (s *stepArtifactValidate) Run(
 				image.Id,
 			),
 		)
+		return multistep.ActionHalt
 	}
 
 	// `-force` was set so we record the existing image information and tell the
