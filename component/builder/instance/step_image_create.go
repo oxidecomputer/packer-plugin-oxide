@@ -29,10 +29,15 @@ func (s *stepImageCreate) Run(
 
 	snapshotID := stateBag.Get("snapshot_id").(string)
 
-	// `-force` is set so we'll delete the existing image before creating a new one.
-	if config.PackerForce {
-		existingImageID := stateBag.Get("existing_image_id").(string)
-		existingImageName := stateBag.Get("existing_image_name").(string)
+	// `-force` is set so we'll delete the existing image before creating a new
+	// one. The existing image information is only recorded when the artifact
+	// name conflicts with an existing image, so guard against its absence to
+	// avoid panicking on a first build with `-force`.
+	existingImageIDRaw, hasExistingImageID := stateBag.GetOk("existing_image_id")
+	existingImageNameRaw, hasExistingImageName := stateBag.GetOk("existing_image_id")
+	if config.PackerForce && hasExistingImageID && hasExistingImageName {
+		existingImageID := existingImageIDRaw.(string)
+		existingImageName := existingImageNameRaw.(string)
 
 		ui.Sayf(
 			"Deleting existing Oxide image %s (%s) because -force is set",
