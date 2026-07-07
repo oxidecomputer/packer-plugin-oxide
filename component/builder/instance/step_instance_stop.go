@@ -6,6 +6,7 @@ package instance
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -32,6 +33,7 @@ func (s *stepInstanceStop) Run(
 	instanceIDRaw, ok := stateBag.GetOk("instance_id")
 	if !ok {
 		ui.Error("State does not contain instance ID. Cannot proceed!")
+		stateBag.Put("error", errors.New("missing state: instance_id"))
 		return multistep.ActionHalt
 	}
 	instanceID := instanceIDRaw.(string)
@@ -54,6 +56,7 @@ func (s *stepInstanceStop) Run(
 		select {
 		case <-timeoutCtx.Done():
 			ui.Error("Timed out waiting for Oxide instance to stop.")
+			stateBag.Put("error", timeoutCtx.Err())
 			return multistep.ActionHalt
 		default:
 		}
