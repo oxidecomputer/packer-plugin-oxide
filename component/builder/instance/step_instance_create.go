@@ -140,6 +140,7 @@ func (o *stepInstanceCreate) Run(
 		select {
 		case <-startCtx.Done():
 			ui.Error("Timed out waiting for Oxide instance to start.")
+			stateBag.Put("error", startCtx.Err())
 			return multistep.ActionHalt
 		default:
 		}

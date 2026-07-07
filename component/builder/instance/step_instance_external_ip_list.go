@@ -6,6 +6,8 @@ package instance
 
 import (
 	"context"
+	"errors"
+	"fmt"
 
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	"github.com/hashicorp/packer-plugin-sdk/packer"
@@ -32,6 +34,7 @@ func (s *stepInstanceExternalIPList) Run(
 	instanceIDRaw, ok := stateBag.GetOk("instance_id")
 	if !ok {
 		ui.Error("State does not contain instance ID. Cannot proceed!")
+		stateBag.Put("error", errors.New("missing state: instance_id"))
 		return multistep.ActionHalt
 	}
 	instanceID := instanceIDRaw.(string)
@@ -67,6 +70,7 @@ func (s *stepInstanceExternalIPList) Run(
 		ui.Error(
 			"Instance does not have any valid external IPs. Packer will be unable to connect to this instance.",
 		)
+		stateBag.Put("error", fmt.Errorf("instance does not have any external ips: %s", instanceID))
 		return multistep.ActionHalt
 	}
 

@@ -70,7 +70,8 @@ func (b *Builder) Run(
 	}
 	oxideClient, err := oxide.NewClient(opts...)
 	if err != nil {
-		return nil, fmt.Errorf("failed creating oxide client: %w", err)
+		ui.Error("Failed creating Oxide API client.")
+		return nil, err
 	}
 
 	// Only generate a temporary SSH key pair if the SSH communicator is enabled
@@ -122,13 +123,14 @@ func (b *Builder) Run(
 
 	if b.config.SkipCreateImage {
 		ui.Say("Skipping image creation since skip_create_image is set.")
+		return nil, nil
 	}
 
 	_, hasImageID := stateBag.GetOk("image_id")
 	_, hasImageName := stateBag.GetOk("image_name")
 	if !hasImageID || !hasImageName {
-		ui.Say("No image_id or image_name. Skipping artifact creation.")
-		return nil, nil
+		ui.Error("State does not contain image information. Cannot create artifact!")
+		return nil, fmt.Errorf("missing state: image_id, image_name")
 	}
 
 	artifact := &Artifact{

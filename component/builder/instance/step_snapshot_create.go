@@ -6,6 +6,7 @@ package instance
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
@@ -33,6 +34,7 @@ func (s *stepSnapshotCreate) Run(
 	bootDiskIDRaw, ok := stateBag.GetOk("boot_disk_id")
 	if !ok {
 		ui.Error("State does not contain boot disk ID. Cannot proceed!")
+		stateBag.Put("error", errors.New("missing state: boot_disk_id"))
 		return multistep.ActionHalt
 	}
 	bootDiskID := bootDiskIDRaw.(string)
