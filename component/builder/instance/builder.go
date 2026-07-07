@@ -73,8 +73,10 @@ func (b *Builder) Run(
 		return nil, fmt.Errorf("failed creating oxide client: %w", err)
 	}
 
-	// Only generate a temporary SSH key pair if the user has not configured SSH.
-	genTempSSHKeyPair := b.config.Comm.SSHPassword == "" &&
+	// Only generate a temporary SSH key pair if the SSH communicator is enabled
+	// and the user has not configured SSH.
+	genTempSSHKeyPair := b.config.Comm.Type == "ssh" &&
+		b.config.Comm.SSHPassword == "" &&
 		b.config.Comm.SSHPrivateKeyFile == "" &&
 		!b.config.Comm.SSHAgentAuth
 
