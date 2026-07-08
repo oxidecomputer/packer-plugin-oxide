@@ -53,14 +53,6 @@ func (s *stepInstanceStop) Run(
 	defer cancel()
 
 	for {
-		select {
-		case <-timeoutCtx.Done():
-			ui.Error("Timed out waiting for Oxide instance to stop.")
-			stateBag.Put("error", timeoutCtx.Err())
-			return multistep.ActionHalt
-		default:
-		}
-
 		instance, err := oxideClient.InstanceView(timeoutCtx, oxide.InstanceViewParams{
 			Instance: oxide.NameOrId(instanceID),
 		})
@@ -76,7 +68,14 @@ func (s *stepInstanceStop) Run(
 		}
 
 		ui.Say(fmt.Sprintf("Waiting for Oxide instance to stop: Currently %s.", instance.RunState))
-		time.Sleep(3 * time.Second)
+
+		select {
+		case <-timeoutCtx.Done():
+			ui.Error("Timed out waiting for Oxide instance to stop.")
+			stateBag.Put("error", timeoutCtx.Err())
+			return multistep.ActionHalt
+		case <-time.After(5 * time.Second):
+		}
 	}
 
 	return multistep.ActionContinue
