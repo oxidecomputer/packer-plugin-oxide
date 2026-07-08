@@ -65,22 +65,22 @@ func (s *stepSnapshotCreate) Cleanup(stateBag multistep.StateBag) {
 	oxideClient := stateBag.Get("client").(*oxide.Client)
 	ui := stateBag.Get("ui").(packer.Ui)
 
+	ctx := context.Background()
+
 	if snapshotIDRaw, ok := stateBag.GetOk("snapshot_id"); ok {
 		snapshotID := snapshotIDRaw.(string)
 
-		ui.Sayf("Deleting Oxide snapshot: %s", snapshotID)
+		snapshotCtx, snapshotCtxCancel := context.WithTimeout(ctx, 30*time.Second)
+		defer snapshotCtxCancel()
 
-		snapshotDeleteCtx, snapshotDeletCtxCancel := context.WithTimeout(
-			context.TODO(),
-			30*time.Second,
-		)
-		defer snapshotDeletCtxCancel()
+		ui.Sayf("Cleaning up Oxide snapshot: %s", snapshotID)
 
-		if err := oxideClient.SnapshotDelete(snapshotDeleteCtx, oxide.SnapshotDeleteParams{
+		if err := oxideClient.SnapshotDelete(snapshotCtx, oxide.SnapshotDeleteParams{
 			Snapshot: oxide.NameOrId(snapshotID),
-		}); err != nil {
+		}); err != nil && !errors.Is(err, oxide.ErrObjectNotFound) {
 			ui.Errorf(
-				"Failed deleting Oxide snapshot during cleanup. Please delete it manually: %v",
+				"Failed cleaning up Oxide snapshot: %s\n\tPlease delete it manually: %v",
+				snapshotID,
 				err,
 			)
 			return
