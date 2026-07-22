@@ -38,7 +38,7 @@ func (d *Datasource) ConfigSpec() hcldec.ObjectSpec {
 // to use during execution.
 func (d *Datasource) Configure(args ...any) error {
 	if err := config.Decode(&d.config, &config.DecodeOpts{
-		Interpolate: false,
+		Interpolate: true,
 	}, args...); err != nil {
 		return fmt.Errorf("failed decoding configuration: %w", err)
 	}

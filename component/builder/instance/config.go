@@ -132,7 +132,7 @@ func (c *Config) Prepare(args ...any) ([]string, error) {
 
 	if err := config.Decode(c, &config.DecodeOpts{
 		Metadata:    &metadata,
-		Interpolate: false,
+		Interpolate: true,
 		PluginType:  BuilderID,
 	}, args...); err != nil {
 		return nil, fmt.Errorf("failed decoding configuration: %w", err)
