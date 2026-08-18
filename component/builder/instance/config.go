@@ -10,8 +10,6 @@ package instance
 import (
 	"errors"
 	"fmt"
-	"os"
-	"strings"
 
 	"github.com/hashicorp/packer-plugin-sdk/common"
 	"github.com/hashicorp/packer-plugin-sdk/communicator"
@@ -68,15 +66,13 @@ type Config struct {
 	// Subnet to create the instance within. Defaults to `default`.
 	Subnet string `mapstructure:"subnet"`
 
-	// Name of the temporary instance. Defaults to `packer-BUILD_NAME-RUN_ID` where
-	// `BUILD_NAME` is the Packer source name and `RUN_ID` is a short prefix of the
-	// unique ID Packer assigns to the current run. This must be unique to prevent
-	// Oxide instance name conflicts.
+	// Name of the temporary instance and its boot disk, primary network interface,
+	// and snapshot. Defaults to `packer-UUID`, where `UUID` is a unique identifier
+	// generated for the current build. This must be unique to prevent Oxide
+	// resource name conflicts.
 	Name string `mapstructure:"name"`
 
-	// Hostname of the temporary instance. Defaults to `packer-BUILD_NAME-RUN_ID`
-	// where `BUILD_NAME` is the Packer source name and `RUN_ID` is a short prefix
-	// of the unique ID Packer assigns to the current run.
+	// Hostname of the temporary instance. Defaults to the value of `name`.
 	Hostname string `mapstructure:"hostname"`
 
 	// Number of vCPUs to provision the instance with. Defaults to `1`.
@@ -89,15 +85,12 @@ type Config struct {
 	// An array of names or IDs of SSH public keys to inject into the instance.
 	SSHPublicKeys []string `mapstructure:"ssh_public_keys"`
 
-	// Name of the resulting image artifact. Defaults to
-	// `SOURCE_IMAGE_NAME-BUILD_NAME-RUN_ID` where `SOURCE_IMAGE_NAME` is the name
-	// of the source image as retrieved from Oxide, `BUILD_NAME` is the Packer
-	// source name, and `RUN_ID` is a short prefix of the unique ID Packer assigns
-	// to the current run.
-	ArtifactName string `mapstructure:"artifact_name"`
+	// Name of the resulting image artifact. Required unless `skip_create_image`
+	// is `true`.
+	ArtifactName string `mapstructure:"artifact_name" required:"true"`
 
-	// Description of the resulting image artifact. Defaults to the description of
-	// the source image as retrieved from Oxide.
+	// Description of the resulting image artifact. Defaults to a description that
+	// identifies the Packer build that created it.
 	ArtifactDescription string `mapstructure:"artifact_description"`
 
 	// Operating system of the resulting image artifact. Defaults to the OS of the
@@ -124,6 +117,9 @@ type Config struct {
 	// created, run `cloud-init status --wait` or an equivalent in a
 	// provisioner.
 	UserData string `mapstructure:"user_data" required:"false"`
+
+	// Unique suffix shared by generated resource names for this build.
+	generatedSuffix string
 }
 
 // Prepare decodes the configuration and validates it.
@@ -141,11 +137,15 @@ func (c *Config) Prepare(args ...any) ([]string, error) {
 	// Set defaults.
 	{
 		if c.Name == "" {
-			c.Name = fmt.Sprintf("packer-%s", c.uniqueSuffix())
+			c.Name = c.uniqueName("packer")
 		}
 
 		if c.Hostname == "" {
-			c.Hostname = fmt.Sprintf("packer-%s", c.uniqueSuffix())
+			c.Hostname = c.Name
+		}
+
+		if c.ArtifactDescription == "" {
+			c.ArtifactDescription = c.buildDescription()
 		}
 
 		if c.CPUs == 0 {
@@ -178,7 +178,7 @@ func (c *Config) Prepare(args ...any) ([]string, error) {
 		}
 
 		if c.Comm.SSHTemporaryKeyPairName == "" {
-			c.Comm.SSHTemporaryKeyPairName = fmt.Sprintf("packer-%s", c.uniqueSuffix())
+			c.Comm.SSHTemporaryKeyPairName = c.uniqueName("packer")
 		}
 
 		c.Comm.SSHTemporaryKeyPairType = "ed25519"
@@ -191,6 +191,13 @@ func (c *Config) Prepare(args ...any) ([]string, error) {
 			multiErr = packer.MultiErrorAppend(
 				multiErr,
 				errors.New("boot_disk_image_id is required"),
+			)
+		}
+
+		if c.ArtifactName == "" && !c.SkipCreateImage {
+			multiErr = packer.MultiErrorAppend(
+				multiErr,
+				errors.New("artifact_name is required unless skip_create_image is true"),
 			)
 		}
 
@@ -211,43 +218,27 @@ func (c *Config) Prepare(args ...any) ([]string, error) {
 	return nil, nil
 }
 
-// uniqueSuffix returns an identifier, derived from Packer-provided values,
-// that is used to configure resource names that are unique and traceable to the
-// Packer build that created them.
-//
-// The following Packer-provided values are used to generate the identifier.
-//
-//   - [common.PackerConfig.PackerBuildName]: The build source name which is
-//     unique for each build in a Packer configuration.
-//   - PACKER_RUN_UUID: The unique ID Packer assigned to the current run, which is
-//     shared among the builds in a Packer configuration. When this is unset, it
-//     falls back to a generated UUID that's unique for each build. This value is
-//     truncated to 8 characters to keep the generated identifier within Oxide's
-//     63-character name limit.
+// buildDescription returns a description identifying the Packer build that
+// created a resource.
+func (c *Config) buildDescription() string {
+	if c.PackerBuildName == "" {
+		return "Created by Packer."
+	}
+
+	return fmt.Sprintf("Created by Packer build %q.", c.PackerBuildName)
+}
+
+// uniqueName returns a name containing the unique suffix for this build.
+func (c *Config) uniqueName(prefix string) string {
+	return fmt.Sprintf("%s-%s", prefix, c.uniqueSuffix())
+}
+
+// uniqueSuffix returns the identifier used to generate unique resource names
+// for this build.
 func (c *Config) uniqueSuffix() string {
-	runID := os.Getenv("PACKER_RUN_UUID")
-	if runID == "" {
-		runID = uuid.TimeOrderedUUID()
+	if c.generatedSuffix == "" {
+		c.generatedSuffix = uuid.TimeOrderedUUID()
 	}
 
-	if len(runID) > 8 {
-		runID = runID[:8]
-	}
-
-	// Transform the Packer build name into a name that the Oxide API will accept.
-	// This is mainly here to transform `_` into `-`.
-	buildName := strings.Map(func(r rune) rune {
-		switch {
-		case r >= 'a' && r <= 'z',
-			r >= 'A' && r <= 'Z',
-			r >= '0' && r <= '9',
-			r == '-':
-			return r
-		default:
-			return '-'
-		}
-	}, c.PackerBuildName)
-	buildName = strings.Trim(buildName, "-")
-
-	return fmt.Sprintf("%s-%s", buildName, runID)
+	return c.generatedSuffix
 }

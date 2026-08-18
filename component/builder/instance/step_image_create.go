@@ -78,7 +78,7 @@ func (s *stepImageCreate) Run(
 		return multistep.ActionHalt
 	}
 
-	ui.Sayf("Created Oxide image: %s", image.Id)
+	ui.Sayf("Created Oxide image %s (%s)", image.Name, image.Id)
 
 	stateBag.Put("image_id", string(image.Id))
 	stateBag.Put("image_name", string(image.Name))

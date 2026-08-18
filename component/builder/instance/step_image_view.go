@@ -6,7 +6,6 @@ package instance
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	"github.com/hashicorp/packer-plugin-sdk/packer"
@@ -38,14 +37,6 @@ func (s *stepImageView) Run(ctx context.Context, stateBag multistep.StateBag) mu
 	ui.Sayf("Fetched Oxide image: %s", image.Id)
 
 	stateBag.Put("source_image_id", string(image.Id))
-
-	if config.ArtifactName == "" {
-		config.ArtifactName = fmt.Sprintf("%s-%s", image.Name, config.uniqueSuffix())
-	}
-
-	if config.ArtifactDescription == "" {
-		config.ArtifactDescription = image.Description
-	}
 
 	if config.ArtifactOS == "" {
 		config.ArtifactOS = image.Os

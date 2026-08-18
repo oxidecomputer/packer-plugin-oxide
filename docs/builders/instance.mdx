@@ -27,6 +27,13 @@ Type: `oxide-instance`
 
 @include 'component/builder/instance/Config-not-required.mdx'
 
+## Temporary Resources
+
+Generated temporary resources use the name `packer-UUID`, where `UUID` is the
+unique identifier generated for the current build. The builder logs the names
+and IDs of created instances, snapshots, and SSH keys and sets temporary
+resource descriptions to identify the build that created them.
+
 ## Interpolation
 
 This builder does not support Go template interpolation (e.g., `{{timestamp}}`).
@@ -61,8 +68,9 @@ Packer to connect to the instance.
 
 The name of the temporary SSH public key uploaded to Oxide can be set using the
 [`temporary_key_pair_name`](/packer/docs/communicators/ssh#temporary_key_pair_name)
-argument. Generally there's no reason to set this but it's available should it
-be necessary.
+argument. Generally there's no reason to set this but it's available should
+it be necessary. It defaults to `packer-UUID`, where `UUID` is the unique
+identifier generated for the current build.
 
 ## Provisioner
 
@@ -122,6 +130,7 @@ with the builder.
 source "oxide-instance" "example" {
   project            = "packer-acc-test"
   boot_disk_image_id = "feb2c8ee-5a1d-4d66-beeb-289b860561bf"
+  artifact_name      = "packer-${formatdate("YYYYMMDD-hhmmss", timestamp())}"
 
   # SSH communicator configuration.
   ssh_username = "ubuntu"

@@ -43,7 +43,7 @@ func (s *stepSnapshotCreate) Run(
 		Project: oxide.NameOrId(config.Project),
 		Body: &oxide.SnapshotCreate{
 			Name:        oxide.Name(config.Name),
-			Description: "Created by Packer.",
+			Description: config.buildDescription(),
 			Disk:        oxide.NameOrId(bootDiskID),
 		},
 	})
@@ -53,7 +53,7 @@ func (s *stepSnapshotCreate) Run(
 		return multistep.ActionHalt
 	}
 
-	ui.Sayf("Created Oxide snapshot: %s", snapshot.Id)
+	ui.Sayf("Created Oxide snapshot %s (%s)", snapshot.Name, snapshot.Id)
 
 	stateBag.Put("snapshot_id", snapshot.Id)
 

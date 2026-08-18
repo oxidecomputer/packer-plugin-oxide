@@ -32,6 +32,9 @@ The configuration arguments for the builder. Arguments can either be required or
 - `project` (string) - Name or ID of the project where the temporary instance and resulting image
   will be created.
 
+- `artifact_name` (string) - Name of the resulting image artifact. Required unless `skip_create_image`
+  is `true`.
+
 <!-- End of code generated from the comments of the Config struct in component/builder/instance/config.go; -->
 
 
@@ -62,14 +65,12 @@ The configuration arguments for the builder. Arguments can either be required or
 
 - `subnet` (string) - Subnet to create the instance within. Defaults to `default`.
 
-- `name` (string) - Name of the temporary instance. Defaults to `packer-BUILD_NAME-RUN_ID` where
-  `BUILD_NAME` is the Packer source name and `RUN_ID` is a short prefix of the
-  unique ID Packer assigns to the current run. This must be unique to prevent
-  Oxide instance name conflicts.
+- `name` (string) - Name of the temporary instance and its boot disk, primary network interface,
+  and snapshot. Defaults to `packer-UUID`, where `UUID` is a unique identifier
+  generated for the current build. This must be unique to prevent Oxide
+  resource name conflicts.
 
-- `hostname` (string) - Hostname of the temporary instance. Defaults to `packer-BUILD_NAME-RUN_ID`
-  where `BUILD_NAME` is the Packer source name and `RUN_ID` is a short prefix
-  of the unique ID Packer assigns to the current run.
+- `hostname` (string) - Hostname of the temporary instance. Defaults to the value of `name`.
 
 - `cpus` (uint64) - Number of vCPUs to provision the instance with. Defaults to `1`.
 
@@ -78,14 +79,8 @@ The configuration arguments for the builder. Arguments can either be required or
 
 - `ssh_public_keys` ([]string) - An array of names or IDs of SSH public keys to inject into the instance.
 
-- `artifact_name` (string) - Name of the resulting image artifact. Defaults to
-  `SOURCE_IMAGE_NAME-BUILD_NAME-RUN_ID` where `SOURCE_IMAGE_NAME` is the name
-  of the source image as retrieved from Oxide, `BUILD_NAME` is the Packer
-  source name, and `RUN_ID` is a short prefix of the unique ID Packer assigns
-  to the current run.
-
-- `artifact_description` (string) - Description of the resulting image artifact. Defaults to the description of
-  the source image as retrieved from Oxide.
+- `artifact_description` (string) - Description of the resulting image artifact. Defaults to a description that
+  identifies the Packer build that created it.
 
 - `artifact_os` (string) - Operating system of the resulting image artifact. Defaults to the OS of the
   source image as retrieved from Oxide.
@@ -110,6 +105,13 @@ The configuration arguments for the builder. Arguments can either be required or
 
 <!-- End of code generated from the comments of the Config struct in component/builder/instance/config.go; -->
 
+
+## Temporary Resources
+
+Generated temporary resources use the name `packer-UUID`, where `UUID` is the
+unique identifier generated for the current build. The builder logs the names
+and IDs of created instances, snapshots, and SSH keys and sets temporary
+resource descriptions to identify the build that created them.
 
 ## Interpolation
 
@@ -145,8 +147,9 @@ Packer to connect to the instance.
 
 The name of the temporary SSH public key uploaded to Oxide can be set using the
 [`temporary_key_pair_name`](/packer/docs/communicators/ssh#temporary_key_pair_name)
-argument. Generally there's no reason to set this but it's available should it
-be necessary.
+argument. Generally there's no reason to set this but it's available should
+it be necessary. It defaults to `packer-UUID`, where `UUID` is the unique
+identifier generated for the current build.
 
 ## Provisioner
 
@@ -206,6 +209,7 @@ with the builder.
 source "oxide-instance" "example" {
   project            = "packer-acc-test"
   boot_disk_image_id = "feb2c8ee-5a1d-4d66-beeb-289b860561bf"
+  artifact_name      = "packer-${formatdate("YYYYMMDD-hhmmss", timestamp())}"
 
   # SSH communicator configuration.
   ssh_username = "ubuntu"
