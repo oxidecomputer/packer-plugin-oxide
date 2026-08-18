@@ -31,6 +31,7 @@ func (o *stepInstanceCreate) Run(
 	config := stateBag.Get("config").(*Config)
 
 	ui.Say("Creating Oxide instance")
+	description := config.buildDescription()
 
 	instance, err := oxideClient.InstanceCreate(ctx, oxide.InstanceCreateParams{
 		Project: oxide.NameOrId(config.Project),
@@ -39,7 +40,7 @@ func (o *stepInstanceCreate) Run(
 			BootDisk: oxide.InstanceDiskAttachment{
 				Value: &oxide.InstanceDiskAttachmentCreate{
 					Name:        oxide.Name(config.Name),
-					Description: "Created by Packer.",
+					Description: description,
 					Size:        oxide.ByteCount(config.BootDiskSize),
 					DiskBackend: oxide.DiskBackend{
 						Value: &oxide.DiskBackendDistributed{
@@ -52,7 +53,7 @@ func (o *stepInstanceCreate) Run(
 					},
 				},
 			},
-			Description: "Created by Packer.",
+			Description: description,
 			ExternalIps: []oxide.ExternalIpCreate{
 				{
 					Value: &oxide.ExternalIpCreateEphemeral{
@@ -83,7 +84,7 @@ func (o *stepInstanceCreate) Run(
 					Params: []oxide.InstanceNetworkInterfaceCreate{
 						{
 							Name:        oxide.Name(config.Name),
-							Description: "Created by Packer.",
+							Description: description,
 							SubnetName:  oxide.Name(config.Subnet),
 							VpcName:     oxide.Name(config.VPC),
 							IpConfig: oxide.PrivateIpStackCreate{
@@ -127,7 +128,7 @@ func (o *stepInstanceCreate) Run(
 		return multistep.ActionHalt
 	}
 
-	ui.Sayf("Created Oxide instance: %s", instance.Id)
+	ui.Sayf("Created Oxide instance %s (%s)", instance.Name, instance.Id)
 
 	stateBag.Put("instance_id", instance.Id)
 	stateBag.Put("boot_disk_id", instance.BootDiskId)

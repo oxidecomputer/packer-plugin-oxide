@@ -14,6 +14,7 @@ data "oxide-image" "ubuntu" {
 source "oxide-instance" "example" {
   project            = "packer-acc-test"
   boot_disk_image_id = data.oxide-image.ubuntu.image_id
+  artifact_name      = "noble-${formatdate("YYYYMMDD-hhmmss", timestamp())}"
 
   # Do not connect to the temporary instance.
   communicator = "none"

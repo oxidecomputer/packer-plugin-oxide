@@ -36,7 +36,7 @@ func (s *stepSSHKeyCreate) Run(
 
 	sshKey, err := oxideClient.CurrentUserSshKeyCreate(ctx, oxide.CurrentUserSshKeyCreateParams{
 		Body: &oxide.SshKeyCreate{
-			Description: "Created by Packer.",
+			Description: config.buildDescription(),
 			Name:        oxide.Name(config.Comm.SSHTemporaryKeyPairName),
 			PublicKey:   string(config.Comm.SSHPublicKey),
 		},
@@ -47,7 +47,7 @@ func (s *stepSSHKeyCreate) Run(
 		return multistep.ActionHalt
 	}
 
-	ui.Sayf("Created Oxide SSH public key: %s", sshKey.Id)
+	ui.Sayf("Created Oxide SSH public key %s (%s)", sshKey.Name, sshKey.Id)
 
 	stateBag.Put("ssh_public_key_name", sshKey.Name)
 	stateBag.Put("ssh_public_key_id", sshKey.Id)
