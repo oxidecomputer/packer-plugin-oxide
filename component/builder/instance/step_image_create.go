@@ -34,7 +34,7 @@ func (s *stepImageCreate) Run(
 	// name conflicts with an existing image, so guard against its absence to
 	// avoid panicking on a first build with `-force`.
 	existingImageIDRaw, hasExistingImageID := stateBag.GetOk("existing_image_id")
-	existingImageNameRaw, hasExistingImageName := stateBag.GetOk("existing_image_id")
+	existingImageNameRaw, hasExistingImageName := stateBag.GetOk("existing_image_name")
 	if config.PackerForce && hasExistingImageID && hasExistingImageName {
 		existingImageID := existingImageIDRaw.(string)
 		existingImageName := existingImageNameRaw.(string)
