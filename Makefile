@@ -1,3 +1,7 @@
+# Use the Go version from go.mod rather than letting GOTOOLCHAIN=auto silently
+# use a newer local toolchain. This matches CI/CD behavior.
+export GOTOOLCHAIN ?= go$(shell go list -m -f '{{.GoVersion}}')+auto
+
 PLUGIN_BINARY=packer-plugin-oxide
 PLUGIN_GO_MODULE=$(shell go list -m)
 
